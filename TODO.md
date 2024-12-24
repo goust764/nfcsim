@@ -1,0 +1,12 @@
+- [x] MODIFIER DANS READTEMP LA STRUCTURE EN DOUBLE POINTEUR
+- [x] Fonction de lecture du registres
+    - [x] Sortir tous les valuers constantes de la fonction
+    - [x] Détermination automatique du registre pour ne pas reparcourir toute la clé
+- [ ] Passer sur un config.ini
+- [ ] Création automatique du fichier de config s'il n'existe pas
+- [ ] Transférer la data de l'aruidno au GPU FanSpeed management
+- [ ] Passer temperature de float à char* ?
+- [ ] Pose problème ?
+    - sender->dcbSerialParams = {0};
+    - sender->timeouts        = {0};
+- [ ] Ajouter un fichier de log

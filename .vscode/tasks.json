@@ -1,0 +1,65 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "C/C++: make le fichier actif",
+            "command": "mingw32-make",
+            "args": [],
+            "options": {
+                "cwd": "${fileDirname}\\..\\build",
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": ["create build folder", "create makefile", "make clean"]
+        },
+        {
+            "type": "shell",
+            "label": "create build folder",
+            "command": "if not exist build mkdir build",
+            "options": {
+                "cwd": "${fileDirname}\\..",
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            }
+        },
+        {
+            "type": "shell",
+            "label": "create makefile",
+            "command": "cmake",
+            "args": ["..", "-G", "\"MinGW Makefiles\""],
+            "options": {
+                "cwd": "${fileDirname}\\..\\build",
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            }
+        },
+        {
+            "type": "shell",
+            "label": "make clean",
+            "command": "mingw32-make",
+            "args": ["clean"],
+            "options": {
+                "cwd": "${fileDirname}\\..\\build",
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            }
+        },
+    ],
+    "version": "2.0.0"
+}

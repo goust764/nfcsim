@@ -1,0 +1,7 @@
+# VSCode configuration except for tasks.json and launch.json
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Build folder
+build
