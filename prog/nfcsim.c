@@ -37,8 +37,8 @@ int main(/*int argc, char *argv[]*/) {
         SUB_CARRIER_FREQ,                        // Frequency of the sub-carrier (Hz)
         CARRIER_FREQ,                            // Frequency of the carrier (Hz)
         10,                                      // Index of the modulation of the envelope (%)
-        0.1,                                     // Signal to noise ratio
-        1,                                       // Duration of the simulation (ms)
+        1,                                       // Signal to noise ratio
+        20000,                                   // Duration of the simulation (ns)
         1000,                                    // Number of points to generate
         &signal                                  // Generated signal
     )) {
@@ -47,7 +47,7 @@ int main(/*int argc, char *argv[]*/) {
     }
 
     //========== Print the signal
-    // scatter_print(*signal, ',', NORM);
+    scatter_print(*signal, ',', NORM);
 
     //========== Free memory
     scatter_destroy(signal);

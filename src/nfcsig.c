@@ -288,6 +288,9 @@ int nfc_modulateSubCarrier(
 int nfc_createEnvelope(
     char* subModulatedData,
     size_t subModulatedSize,
+    nfc_subModulation_t subModulation,
+    unsigned int bitRate,
+    unsigned int subCarrierFreq,
     unsigned char modulationIndex,
     unsigned int simDuration,
     unsigned int numberOfPoints,
@@ -297,16 +300,40 @@ int nfc_createEnvelope(
     double modulationDepth;                      // Depth of the modulation, 
                                                  // we suppose that the 
                                                  // amplitude of the signal is 1
+    unsigned int symboleDuration;                // Duration of a symbol in ns 
+                                                 // from the subModulatedData
+    unsigned int time;                           // Time of the current point in ns
 
     //========== Check arguments
     if (!subModulatedData || !subModulatedSize) {
         PRINT(ERR, "Sub-modulated data cannot be NULL or empty");
         return -1;
     }
+    //----- Check sub-carrier modulation type
+    if (subModulation != NONE && 
+        subModulation != OOK && 
+        subModulation != BPSK) {
+        PRINT(ERR, "Invalid sub-carrier modulation type");
+        return -1;
+    }
+    //----- Check bit rate
+    if (bitRate == 0) {
+        PRINT(ERR, "Bit rate cannot be null");
+        return -1;
+    }
+    //----- Check sub-carrier frequency
+    if (subCarrierFreq == 0 && subModulation != NONE) {
+        PRINT(ERR, "Sub-carrier frequency cannot be null with a sub-carrier modulation different from NONE");
+        return -1;
+    }
+    if (subCarrierFreq % bitRate != 0)
+        PRINT(WARN, "Sub-carrier frequency should be a multiple of the bit rate");
+    //----- Check modulation index
     if (modulationIndex > 100) {
         PRINT(ERR, "Modulation index cannot be greater than 100");
         return -1;
     }
+    //----- Check simulation duration
     if (simDuration == 0) {
         PRINT(ERR, "Simulation duration cannot be null");
         return -1;
@@ -319,12 +346,24 @@ int nfc_createEnvelope(
     }
 
     //========== Generate envelope
-    modulationDepth = (double)(100 - modulationIndex) / (double)(modulationIndex + 100);
-    PRINT(DBG, "Modulation depth: %f", modulationDepth);
+    //----- Calculate the duration of a symbol
+    // If there is no sub-carrier modulation, the duration of a symbol is the bit rate
+    if (subModulation == NONE)
+        symboleDuration = (unsigned int)1e9 / bitRate;
+    // Otherwise, the duration of a symbol is the sub-carrier frequency
+    else
+        symboleDuration = (unsigned int)1e9 / subCarrierFreq;
+    PRINT(INFO, "Duration of a symbol: %d ns", symboleDuration);
 
+    //----- Calculate the modulation depth
+    modulationDepth = (double)(100 - modulationIndex) / (double)(modulationIndex + 100);
+    PRINT(INFO, "Modulation depth: %f", modulationDepth);
+
+    //----- Generate the envelope
     for (unsigned int i = 0; i < numberOfPoints; i=i+1) {
-        (*envelope)->points[i].x =  i * simDuration / numberOfPoints;
-        (*envelope)->points[i].y =  subModulatedData[subModulatedSize*i/numberOfPoints] ?
+        time = i * simDuration / numberOfPoints;
+        (*envelope)->points[i].x =  time;
+        (*envelope)->points[i].y =  subModulatedData[time/symboleDuration] ?
                                     1 :
                                     modulationDepth;
     }
@@ -357,7 +396,7 @@ int nfc_modulate(
                                                 (double)2 *
                                                 (double)M_PI *
                                                 (double)carrierFreq *
-                                                (double)(enveloppe.points[i].x) / (double)1000
+                                                (double)(enveloppe.points[i].x) / (double)1e9
                                             );
     }
 
@@ -388,7 +427,7 @@ int nfc_addNoise(
     //========== Add noise
     for (unsigned int i = 0; i < (*noisySignal)->size; i=i+1) {
         (*noisySignal)->points[i].x = signal.points[i].x;
-        (*noisySignal)->points[i].y = signal.points[i].y + noiseLevel * (double)rand() / (double)RAND_MAX;
+        (*noisySignal)->points[i].y = signal.points[i].y + noiseLevel * ((double)rand() / (double)RAND_MAX - 0.5);
     }
 
     return 0;
@@ -460,7 +499,8 @@ int nfc_createSignal(
     if (nfc_modulateSubCarrier(
         encodedData, encodedSize,
         subModulation,
-        bitRate, subCarrierFreq,
+        bitRate,
+        subCarrierFreq,
         &subModulatedData, &subModulatedSize
     )) {
         PRINT(ERR, "Failed to modulate data with sub-carrier");
@@ -477,6 +517,9 @@ int nfc_createSignal(
     PRINT(INFO, "Generating envelope");
     if (nfc_createEnvelope(
         subModulatedData, subModulatedSize,
+        subModulation,
+        bitRate,
+        subCarrierFreq,
         modulationIndex,
         simDuration, numberOfPoints,
         &envelope
@@ -495,7 +538,7 @@ int nfc_createSignal(
     if (nfc_modulate(
         *envelope, 
         carrierFreq,
-        &modulatedSignal
+        noiseLevel ? &modulatedSignal : signal
     )) {
         PRINT(ERR, "Failed to modulate signal");
         free(encodedData);
@@ -504,10 +547,19 @@ int nfc_createSignal(
         return -1;
     }
 
-    PRINT(DBG, "===== MODULATED SIGNAL =====");
-    scatter_print(*modulatedSignal, '\t', DBG);
+    // PRINT(DBG, "===== MODULATED SIGNAL =====");
+    // scatter_print(*modulatedSignal, '\t', DBG);
 
     //========== Add noise
+    if (!noiseLevel) {
+        free(encodedData);
+        free(subModulatedData);
+        scatter_destroy(envelope);
+
+        PRINT(SUCC, "Signal successfully generated");
+        return 0;
+    }
+
     PRINT(INFO, "Adding noise to the signal");
     if (nfc_addNoise(
         *modulatedSignal,

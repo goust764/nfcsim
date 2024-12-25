@@ -20,7 +20,8 @@
                 "isDefault": true
             },
             "dependsOrder": "sequence",
-            "dependsOn": ["create build folder", "create makefile", "make clean"]
+            // "dependsOn": ["create build folder", "create makefile", "make clean"]
+            "dependsOn": ["create build folder", "create makefile"]
         },
         {
             "type": "shell",

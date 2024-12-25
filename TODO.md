@@ -3,3 +3,9 @@
 - [ ] FFT function
 - [ ] Demodulation system
 - [ ] Improve noise generation
+- [ ] Skip sub-modulation if not required
+- [ ] Englobe signal parameters in a structure (ask AI ?)
+    - [ ] Add a function to check the parameters
+    - [ ] Add a function to print the signal parameters
+- [ ] In logging, completly remove print when in headless mode
+- [ ] Add some compressed types (like uint8_t, uint16_t, etc.)
