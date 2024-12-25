@@ -205,7 +205,7 @@ int nfc_modulateSubCarrier(
     else
         *subModulatedSize = encodedSize;
 
-    PRINT(DBG, "subModulatedSize: %ld", *subModulatedSize);
+    // PRINT(DBG, "subModulatedSize: %ld", *subModulatedSize);
 
     *subModulatedData = (char*)malloc(*subModulatedSize);
 
@@ -293,6 +293,11 @@ int nfc_createEnvelope(
     unsigned int numberOfPoints,
     scatter_t** envelope
 ) {
+    //========== Variable declaration
+    double modulationDepth;                      // Depth of the modulation, 
+                                                 // we suppose that the 
+                                                 // amplitude of the signal is 1
+
     //========== Check arguments
     if (!subModulatedData || !subModulatedSize) {
         PRINT(ERR, "Sub-modulated data cannot be NULL or empty");
@@ -314,9 +319,14 @@ int nfc_createEnvelope(
     }
 
     //========== Generate envelope
+    modulationDepth = (double)(100 - modulationIndex) / (double)(modulationIndex + 100);
+    PRINT(DBG, "Modulation depth: %f", modulationDepth);
+
     for (unsigned int i = 0; i < numberOfPoints; i=i+1) {
-        (*envelope)->points[i].x = i * simDuration / numberOfPoints;
-        (*envelope)->points[i].y = modulationIndex / 100 * subModulatedData[subModulatedSize * i / numberOfPoints];
+        (*envelope)->points[i].x =  i * simDuration / numberOfPoints;
+        (*envelope)->points[i].y =  subModulatedData[subModulatedSize*i/numberOfPoints] ?
+                                    1 :
+                                    modulationDepth;
     }
 
     return 0;
@@ -341,8 +351,14 @@ int nfc_modulate(
 
     //========== Modulate signal
     for (int i = 0; (size_t)i < (*modulatedSignal)->size; i=i+1) {
-        (*modulatedSignal)->points[i].x = enveloppe.points[i].x;
-        (*modulatedSignal)->points[i].y = enveloppe.points[i].y * sin(2 * M_PI * carrierFreq * enveloppe.points[i].x / 1000);
+        (*modulatedSignal)->points[i].x =   enveloppe.points[i].x;
+        (*modulatedSignal)->points[i].y =   enveloppe.points[i].y * 
+                                            sin(
+                                                (double)2 *
+                                                (double)M_PI *
+                                                (double)carrierFreq *
+                                                (double)(enveloppe.points[i].x) / (double)1000
+                                            );
     }
 
     return 0;
@@ -403,10 +419,25 @@ int nfc_createSignal(
     //========== Check arguments
     /* Inch no need, already done in sub-functions */
 
-    PRINT(DBG, "===== INPUT DATA =====");
-    for (int i = 0; (size_t)i < size; i=i+1) {
-        PRINT(DBG, "Data: [%d]\t0x%02X", i, data[i]);
-    }
+    //========== Printing parameters
+    PRINT(INFO, "===== NFC SIGNAL GENERATION PARAMETERS =====");
+    PRINT(INFO, "Data:                   %s",       data);
+    PRINT(INFO, "Size:                   %ld",      size);
+    PRINT(INFO, "Bit rate:               %d bit/s", bitRate);
+    PRINT(INFO, "Encoding type:          %d",       encoding_type);
+    PRINT(INFO, "Sub-carrier modulation: %d",       subModulation);
+    PRINT(INFO, "Sub-carrier frequency:  %d Hz",    subCarrierFreq);
+    PRINT(INFO, "Carrier frequency:      %d Hz",    carrierFreq);
+    PRINT(INFO, "Modulation index:       %d%%",     modulationIndex);
+    PRINT(INFO, "Noise level:            %f",       noiseLevel);
+    PRINT(INFO, "Simulation duration:    %d ms",    simDuration);
+    PRINT(INFO, "Number of points:       %d",       numberOfPoints);
+    PRINT(NORM, "");
+
+    // PRINT(DBG, "===== INPUT DATA =====");
+    // for (int i = 0; (size_t)i < size; i=i+1) {
+    //     PRINT(DBG, "Data: [%d]\t0x%02X", i, data[i]);
+    // }
 
     //========== Encode data
     PRINT(INFO, "Encoding data");
@@ -419,10 +450,10 @@ int nfc_createSignal(
         return -1;
     }
 
-    PRINT(DBG, "===== ENCODED DATA =====");
-    for (int i = 0; (size_t)i < encodedSize; i=i+1) {
-        PRINT(DBG, "Encoded data: [%d]\t%d", i, encodedData[i]);
-    }
+    // PRINT(DBG, "===== ENCODED DATA =====");
+    // for (int i = 0; (size_t)i < encodedSize; i=i+1) {
+    //     PRINT(DBG, "Encoded data: [%d]\t%d", i, encodedData[i]);
+    // }
 
     //========== Sub-carrier modulation
     PRINT(INFO, "Modulating data with sub-carrier");
@@ -436,6 +467,11 @@ int nfc_createSignal(
         free(encodedData);
         return -1;
     }
+
+    // PRINT(DBG, "===== SUB-MODULATED DATA =====");
+    // for (int i = 0; (size_t)i < subModulatedSize; i=i+1) {
+    //     PRINT(DBG, "Sub-modulated data: [%d]\t%d", i, subModulatedData[i]);
+    // }
 
     //========== Generate envelope
     PRINT(INFO, "Generating envelope");
@@ -451,6 +487,9 @@ int nfc_createSignal(
         return -1;
     }
 
+    // PRINT(DBG, "===== ENVELOPE =====");
+    // scatter_print(*envelope, '\t', DBG);
+
     //========== Modulate signal
     PRINT(INFO, "Modulating signal");
     if (nfc_modulate(
@@ -464,6 +503,9 @@ int nfc_createSignal(
         scatter_destroy(envelope);
         return -1;
     }
+
+    PRINT(DBG, "===== MODULATED SIGNAL =====");
+    scatter_print(*modulatedSignal, '\t', DBG);
 
     //========== Add noise
     PRINT(INFO, "Adding noise to the signal");

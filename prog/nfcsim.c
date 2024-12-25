@@ -29,25 +29,25 @@ int main(/*int argc, char *argv[]*/) {
 
     //========== Generate NFC signal
     if (nfc_createSignal(
-        data,
-        strlen(data),
-        106000,
-        MANCHESTER,
-        OOK,
-        SUB_CARRIER_FREQ,
-        CARRIER_FREQ,
-        10,
-        0.1,
-        1000,
-        1000,
-        &signal
+        data,                                    // Data to encode
+        strlen(data),                            // Size of the data
+        106000,                                  // Bit rate of the input data
+        MANCHESTER,                              // Type of encoding to apply to the data
+        OOK,                                     // Type of sub-carrier modulation
+        SUB_CARRIER_FREQ,                        // Frequency of the sub-carrier (Hz)
+        CARRIER_FREQ,                            // Frequency of the carrier (Hz)
+        10,                                      // Index of the modulation of the envelope (%)
+        0.1,                                     // Signal to noise ratio
+        1,                                       // Duration of the simulation (ms)
+        1000,                                    // Number of points to generate
+        &signal                                  // Generated signal
     )) {
         PRINT(ERR, "Failed to generate NFC signal");
         return -1;
     }
 
     //========== Print the signal
-    scatter_print(*signal, ',', NORM);
+    // scatter_print(*signal, ',', NORM);
 
     //========== Free memory
     scatter_destroy(signal);
