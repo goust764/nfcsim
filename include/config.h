@@ -19,14 +19,31 @@
  */
 // #define HEADLESS
 
+//----- Simulation parameters
 /**
- * Verbosity level of the program
- * 0: No message
- * 1: Error messages
- * 2: Error and warning messages
- * 3: Error, warning and info messages
- *  
+ * Use the M_PI constant from the math library
  */
-#define VERBOSITY 3
+#define _USE_MATH_DEFINES
+
+/**
+ * Duration of the simulation in ms
+ */
+#define SIM_DURATION 1000
+
+/**
+ * Number of points during the simulation
+ */
+#define NB_POINTS 1000
+
+/**
+ * Carrier frequency of the NFC communication
+ */
+#define CARRIER_FREQ 13.56e6
+
+/**
+ * Sub-carrier frequency of the NFC communication
+ * Note : We do not support yet NFC-V
+ */
+#define SUB_CARRIER_FREQ 848e3
 
 #endif // CONFIG_H

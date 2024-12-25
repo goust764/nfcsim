@@ -18,24 +18,39 @@ void printInfo(print_type_t print_type, const char* format, ...) {
         va_list args;                                // Variable argument list
         
         //----- Print the type of the message
-        printf("\n");
         switch (print_type) {
+            case NORM:
+                STYLE(stderr, COLOR_WHITE, STYLE_REGULAR);
+                fprintf(stderr, "\t");
+            break;
             #if VERBOSITY >= 1
                 case ERR:
-                    STYLE(stderr, COLOR_RED, STYLE_REGULAR);
-                    fprintf(stderr, "[ERROR]\t");
+                    STYLE(stderr, COLOR_RED, STYLE_BOLD);
+                    fprintf(stderr, "[ERR]\t");
                 break;
             #endif
             #if VERBOSITY >= 2
                 case WARN:
-                    STYLE(stderr, COLOR_YELLOW, STYLE_REGULAR);
-                    fprintf(stderr, "[WARNING]\t");
+                    STYLE(stderr, COLOR_YELLOW, STYLE_BOLD);
+                    fprintf(stderr, "[WARN]\t");
                 break;
             #endif
             #if VERBOSITY >= 3
+                case SUCC:
+                    STYLE(stderr, COLOR_GREEN, STYLE_BOLD);
+                    fprintf(stderr, "[SUCC]\t");
+                break;
+            #endif
+            #if VERBOSITY >= 4
                 case INFO:
-                    STYLE(stderr, COLOR_BLUE, STYLE_HIGH_INTENSITY_TEXT);
+                    STYLE(stderr, COLOR_BLUE, STYLE_BOLD);
                     fprintf(stderr, "[INFO]\t");
+                break;
+            #endif
+            #if VERBOSITY >= 5
+                case DBG:
+                    STYLE(stderr, COLOR_MAGENTA, STYLE_BOLD);
+                    fprintf(stderr, "[DBG]\t");
                 break;
             #endif
             default:
@@ -45,15 +60,14 @@ void printInfo(print_type_t print_type, const char* format, ...) {
         }
         
         //----- Print the message
-        if (VERBOSITY > print_type) {
-            STYLE(stderr, COLOR_WHITE, STYLE_BOLD);
+        if (VERBOSITY >= print_type) {
+            STYLE(stderr, COLOR_WHITE, STYLE_REGULAR);
             va_start(args, format);
             vfprintf(stderr, format, args);
             va_end(args);
             printf("\n");
+            STYLE_RESET(stderr);
         }
-
-        STYLE_RESET(stderr);
 
     #endif // VERBOSITY > 0
 }
