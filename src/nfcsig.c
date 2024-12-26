@@ -167,7 +167,7 @@ int nfc_modulateSubCarrier(
     char** subModulatedData,
     size_t* subModulatedSize
 ) {
-    //========== Variable declaration
+    //========== Variables declaration
     char isEven = 0;                             // Flag to know if the current
                                                  // value in the sub-carrier has to be 0 or 1
 
@@ -296,7 +296,7 @@ int nfc_createEnvelope(
     unsigned int numberOfPoints,
     scatter_t** envelope
 ) {
-    //========== Variable declaration
+    //========== Variables declaration
     double modulationDepth;                      // Depth of the modulation, 
                                                  // we suppose that the 
                                                  // amplitude of the signal is 1
@@ -362,7 +362,7 @@ int nfc_createEnvelope(
     //----- Generate the envelope
     for (unsigned int i = 0; i < numberOfPoints; i=i+1) {
         time = i * simDuration / numberOfPoints;
-        (*envelope)->points[i].x =  time;
+        (*envelope)->points[i].x =  (int)time;
         (*envelope)->points[i].y =  subModulatedData[time/symboleDuration] ?
                                     1 :
                                     modulationDepth;
@@ -433,7 +433,6 @@ int nfc_addNoise(
     return 0;
 }
 
-//========== General function
 int nfc_createSignal(
     char* data, size_t size,
     unsigned int bitRate,
@@ -447,7 +446,7 @@ int nfc_createSignal(
     unsigned int numberOfPoints,
     scatter_t** signal
 ) {
-    //========== Variable declaration
+    //========== Variables declaration
     char*      encodedData      = NULL;          // Encoded data
     size_t     encodedSize      = 0;             // Size of the encoded data
     char*      subModulatedData = NULL;          // Sub-carrier modulated data

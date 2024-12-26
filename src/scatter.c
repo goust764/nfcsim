@@ -39,8 +39,24 @@ void scatter_destroy(scatter_t* scatter) {
     free(scatter);
 }
 
+double scatter_getY(scatter_t scatter, size_t index) {
+    return scatter.points[index].y;
+}
+
+void scatter_setY(scatter_t scatter, size_t index, double y) {
+    scatter.points[index].y = y;
+}
+
+int scatter_getX(scatter_t scatter, size_t index) {
+    return scatter.points[index].x;
+}
+
+void scatter_setX(scatter_t scatter, size_t index, int x) {
+    scatter.points[index].x = x;
+}
+
 void scatter_print(scatter_t scatter, char separator, print_type_t print_type) {
     for (int i = 0; (size_t)i < scatter.size; i=i+1) {
-        PRINT(print_type, "%u%c%lf", scatter.points[i].x, separator, scatter.points[i].y);
+        PRINT(print_type, "%d%c%lf", scatter.points[i].x, separator, scatter.points[i].y);
     }
 }

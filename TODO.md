@@ -1,11 +1,10 @@
 - [ ] Add a low-pass on the envelope to make it more realistic
 - [ ] CSV export do visualize signals in a spreadsheet
-- [ ] FFT function
+- [X] FFT function
 - [ ] Demodulation system
 - [ ] Improve noise generation
 - [ ] Skip sub-modulation if not required
 - [ ] Englobe signal parameters in a structure (ask AI ?)
     - [ ] Add a function to check the parameters
     - [ ] Add a function to print the signal parameters
-- [ ] In logging, completly remove print when in headless mode
 - [ ] Add some compressed types (like uint8_t, uint16_t, etc.)

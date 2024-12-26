@@ -13,6 +13,7 @@
 #include "config.h"
 #include "logging.h"
 #include "nfcsig.h"
+#include "FFT.h"
 #include <string.h>
 
 /**
@@ -26,6 +27,7 @@ int main(/*int argc, char *argv[]*/) {
     //========== Variable declaration
     char* data = "Hello, World!";
     scatter_t* signal = NULL;
+    scatter_t* freqSerie = NULL;
 
     //========== Generate NFC signal
     if (nfc_createSignal(
@@ -36,21 +38,30 @@ int main(/*int argc, char *argv[]*/) {
         OOK,                                     // Type of sub-carrier modulation
         SUB_CARRIER_FREQ,                        // Frequency of the sub-carrier (Hz)
         CARRIER_FREQ,                            // Frequency of the carrier (Hz)
-        10,                                      // Index of the modulation of the envelope (%)
-        1,                                       // Signal to noise ratio
-        20000,                                   // Duration of the simulation (ns)
-        1000,                                    // Number of points to generate
+        50,                                      // Index of the modulation of the envelope (%)
+        0,                                       // Signal to noise ratio
+        10000,                                    // Duration of the simulation (ns)
+        1024,                                    // Number of points to generate
         &signal                                  // Generated signal
     )) {
         PRINT(ERR, "Failed to generate NFC signal");
         return -1;
     }
 
+    //========== Apply FFT
+    if (fft_Compute(*signal, &freqSerie)) {
+        PRINT(ERR, "Failed to apply the FFT");
+        scatter_destroy(signal);
+        return -1;
+    }
+
     //========== Print the signal
-    scatter_print(*signal, ',', NORM);
+    // scatter_print(*signal, ',', NORM);
+    scatter_print(*freqSerie, ',', NORM);
 
     //========== Free memory
     scatter_destroy(signal);
-
+    scatter_destroy(freqSerie);
+    
     return 0;
 }

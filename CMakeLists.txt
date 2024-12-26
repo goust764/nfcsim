@@ -19,4 +19,8 @@ add_library(project_lib STATIC ${SOURCES})
 # Link each executable to the static library
 add_executable(nfcsim ./prog/nfcsim.c)
 target_link_libraries(nfcsim project_lib m)
+
+# add_executable(test_fft ./prog/test_fft.c)
+# target_link_libraries(test_fft project_lib m)
+
 # add_test(register_test ./test_register)

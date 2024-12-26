@@ -21,7 +21,7 @@
  * 
  */
 typedef struct {
-    unsigned int x;                              // X coordinate
+    int x;                                       // X coordinate
     double       y;                              // Y coordinate
 } point_t;
 
@@ -50,6 +50,42 @@ int scatter_create(scatter_t** scatter, size_t size);
  * @param scatter Pointer to the cloud of points to destroy
  */
 void scatter_destroy(scatter_t* scatter);
+
+/**
+ * @brief Return the Y value of a point in the cloud
+ * 
+ * @param scatter Cloud of points
+ * @param index Index of the point
+ * @return double - Y value of the point
+ */
+double scatter_getY(scatter_t scatter, size_t index);
+
+/**
+ * @brief Set the Y value of a point in the cloud
+ * 
+ * @param scatter Cloud of points
+ * @param index Index of the point
+ * @param y New Y value
+ */
+void scatter_setY(scatter_t scatter, size_t index, double y);
+
+/**
+ * @brief Return the X value of a point in the cloud
+ * 
+ * @param scatter Cloud of points
+ * @param index Index of the point
+ * @return int - X value of the point
+ */
+int scatter_getX(scatter_t scatter, size_t index);
+
+/**
+ * @brief Set the X value of a point in the cloud
+ * 
+ * @param scatter Cloud of points
+ * @param index Index of the point
+ * @param x New X value
+ */
+void scatter_setX(scatter_t scatter, size_t index, int x);
 
 /**
  * @brief Print a cloud of points
