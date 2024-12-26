@@ -57,7 +57,7 @@ int main(/*int argc, char *argv[]*/) {
 
     //========== Print the signal
     // scatter_print(*signal, ',', NORM);
-    scatter_print(*freqSerie, ',', NORM);
+    // scatter_print(*freqSerie, ',', NORM);
 
     //========== Free memory
     scatter_destroy(signal);

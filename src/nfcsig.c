@@ -470,7 +470,7 @@ int nfc_createSignal(
     PRINT(INFO, "Noise level:            %f",       noiseLevel);
     PRINT(INFO, "Simulation duration:    %d ms",    simDuration);
     PRINT(INFO, "Number of points:       %d",       numberOfPoints);
-    PRINT(NORM, "");
+    PRINT(INFO, "============================================");
 
     // PRINT(DBG, "===== INPUT DATA =====");
     // for (int i = 0; (size_t)i < size; i=i+1) {

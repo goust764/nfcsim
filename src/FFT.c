@@ -72,6 +72,9 @@ int fft_Iterative(scatter_t in, scatter_t* out) {
         return -1;
     }
 
+    for (size_t i = 0; i < in.size; i=i+1)
+        X[i] = scatter_getY(in, i);
+
     //========== Bit-reversal permutation
     for (int i = 1; (size_t)i < in.size; i=i+1) {
         bit = (int)in.size >> 1;
@@ -86,7 +89,7 @@ int fft_Iterative(scatter_t in, scatter_t* out) {
             X[j] = temp;
         }
     }
-
+    
     //========== FFT
     for (int len = 2; (size_t)len <= in.size; len=len<<1) {
         angle = -2.0 * M_PI / len;
