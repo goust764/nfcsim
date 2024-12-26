@@ -302,7 +302,7 @@ int nfc_createEnvelope(
                                                  // amplitude of the signal is 1
     unsigned int symboleDuration;                // Duration of a symbol in ns 
                                                  // from the subModulatedData
-    unsigned int time;                           // Time of the current point in ns
+    unsigned long long time;                     // Time of the current point in ns
 
     //========== Check arguments
     if (!subModulatedData || !subModulatedSize) {
@@ -361,7 +361,9 @@ int nfc_createEnvelope(
 
     //----- Generate the envelope
     for (unsigned int i = 0; i < numberOfPoints; i=i+1) {
-        time = i * simDuration / numberOfPoints;
+        time =  (unsigned long long)i * 
+                (unsigned long long)simDuration / 
+                numberOfPoints;
         (*envelope)->points[i].x =  (int)time;
         (*envelope)->points[i].y =  subModulatedData[time/symboleDuration] ?
                                     1 :
@@ -551,10 +553,10 @@ int nfc_createSignal(
 
     //========== Add noise
     if (!noiseLevel) {
+        PRINT(INFO, "Skipping noise addition");
         free(encodedData);
         free(subModulatedData);
         scatter_destroy(envelope);
-
         PRINT(SUCC, "Signal successfully generated");
         return 0;
     }
