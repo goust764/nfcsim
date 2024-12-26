@@ -1,10 +1,11 @@
-- [ ] Add a low-pass on the envelope to make it more realistic
-- [ ] CSV export do visualize signals in a spreadsheet
+- [X] CSV export do visualize signals in a spreadsheet
 - [X] FFT function
+- [ ] Switch scatter up to one level up of pointer
 - [ ] Demodulation system
-- [ ] Improve noise generation
 - [ ] Skip sub-modulation if not required
 - [ ] Englobe signal parameters in a structure (ask AI ?)
     - [ ] Add a function to check the parameters
     - [ ] Add a function to print the signal parameters
 - [ ] Add some compressed types (like uint8_t, uint16_t, etc.)
+- [ ] Improve noise generation
+- [ ] Add a low-pass on the envelope to make it more realistic

@@ -23,6 +23,8 @@ int scatter_create(scatter_t** scatter, size_t size) {
     }
 
     (*scatter)->size = size;
+    (*scatter)->xName = NULL;
+    (*scatter)->yName = NULL;
 
     (*scatter)->points = calloc(size, sizeof(point_t));
     if (!(*scatter)->points) {
@@ -30,6 +32,20 @@ int scatter_create(scatter_t** scatter, size_t size) {
         free(scatter);
         return -1;
     }
+
+    return 0;
+}
+
+void scatter_setName(scatter_t* scatter, char* xName, char* yName) {
+    scatter->xName = xName;
+    scatter->yName = yName;
+}
+
+int scatter_createWName(scatter_t** scatter, size_t size, char* xName, char* yName) {
+    if (scatter_create(scatter, size))
+        return -1;
+
+    scatter_setName(*scatter, xName, yName);
 
     return 0;
 }
@@ -56,7 +72,6 @@ void scatter_setX(scatter_t scatter, size_t index, int x) {
 }
 
 void scatter_print(scatter_t scatter, char separator, print_type_t print_type) {
-    for (int i = 0; (size_t)i < scatter.size; i=i+1) {
+    for (int i = 0; (size_t)i < scatter.size; i=i+1)
         PRINT(print_type, "%d%c%lf", scatter.points[i].x, separator, scatter.points[i].y);
-    }
 }

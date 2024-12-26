@@ -14,6 +14,7 @@
 #include "logging.h"
 #include "nfcsig.h"
 #include "FFT.h"
+#include "CSV.h"
 #include <string.h>
 
 /**
@@ -26,8 +27,7 @@
 int main(/*int argc, char *argv[]*/) {
     //========== Variable declaration
     char* data = "Hello, World!";
-    scatter_t* signal = NULL;
-    scatter_t* freqSerie = NULL;
+    scatter_t* signals[2] = {NULL, NULL};        // NFC signal and its FFT
 
     //========== Generate NFC signal
     if (nfc_createSignal(
@@ -39,29 +39,39 @@ int main(/*int argc, char *argv[]*/) {
         SUB_CARRIER_FREQ,                        // Frequency of the sub-carrier (Hz)
         CARRIER_FREQ,                            // Frequency of the carrier (Hz)
         50,                                      // Index of the modulation of the envelope (%)
-        0,                                       // Signal to noise ratio
-        10000,                                    // Duration of the simulation (ns)
-        1024,                                    // Number of points to generate
-        &signal                                  // Generated signal
+        0.0,                                     // Signal to noise ratio
+        981132,                                  // Duration of the simulation (ns)
+        262144,                                  // Number of points to generate
+        &signals[0]                              // Generated signal
     )) {
         PRINT(ERR, "Failed to generate NFC signal");
         return -1;
     }
-
+    
     //========== Apply FFT
-    if (fft_Compute(*signal, &freqSerie)) {
+    if (fft_Compute(*signals[0], &signals[1])) {
         PRINT(ERR, "Failed to apply the FFT");
-        scatter_destroy(signal);
+        scatter_destroy(signals[0]);
         return -1;
     }
 
     //========== Print the signal
-    // scatter_print(*signal, ',', NORM);
-    // scatter_print(*freqSerie, ',', NORM);
+    // scatter_print(*signals[0], ',', NORM);
+    // scatter_print(*signals[1], ',', NORM);
+
+    //========== Export the signals
+    scatter_setName(signals[0], "Time (ns)", "Amplitude");
+    scatter_setName(signals[1], "Frequency (Hz)", "Amplitude");
+    if (writeCSV(signals, 2, "..\\res\\signals.csv")) {
+        PRINT(ERR, "Failed to export the signal");
+        scatter_destroy(signals[0]);
+        scatter_destroy(signals[1]);
+        return -1;
+    }
 
     //========== Free memory
-    scatter_destroy(signal);
-    scatter_destroy(freqSerie);
+    scatter_destroy(signals[0]);
+    scatter_destroy(signals[1]);
     
     return 0;
 }

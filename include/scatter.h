@@ -21,8 +21,8 @@
  * 
  */
 typedef struct {
-    int x;                                       // X coordinate
-    double       y;                              // Y coordinate
+    int    x;                                    // X coordinate
+    double y;                                    // Y coordinate
 } point_t;
 
 /**
@@ -30,8 +30,10 @@ typedef struct {
  * 
  */
 typedef struct cloudPoint {
-    size_t  size;                               // Number of points
-    point_t *points;                            // Array of points
+    size_t   size;                               // Number of points
+    point_t* points;                             // Array of points
+    char*    xName;                              // Name of the X axis
+    char*    yName;                              // Name of the Y axis
 } scatter_t;
 
 //========== Functions
@@ -43,6 +45,26 @@ typedef struct cloudPoint {
  * @return int - 0 if success, -1 otherwise
  */
 int scatter_create(scatter_t** scatter, size_t size);
+
+/**
+ * @brief Set the name of the axis of a cloud of points
+ * 
+ * @param scatter Cloud of points
+ * @param xName Name of the X axis
+ * @param yName Name of the Y axis
+ */
+void scatter_setName(scatter_t* scatter, char* xName, char* yName);
+
+/**
+ * @brief Create a cloud of points with axis names
+ * 
+ * @param scatter Pointer to the created cloud of points
+ * @param size Number of points
+ * @param xName Name of the X axis
+ * @param yName Name of the Y axis
+ * @return int - 0 if success, -1 otherwise
+ */
+int scatter_createWName(scatter_t** scatter, size_t size, char* xName, char* yName);
 
 /**
  * @brief Destroy a cloud of points
