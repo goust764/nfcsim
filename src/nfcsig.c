@@ -16,12 +16,15 @@
 #include <math.h>
 
 int nfc_encodeData(
-    char* data,
-    size_t size,
-    nfc_encoding_t encoding_type,
+    nfc_sigParam_t* sigParam,
     char** encodedData,
     size_t* encodedSize
 ) {
+    //========== Variables declaration
+    char* data                  = sigParam->data;
+    size_t size                 = sigParam->dataSize;
+    nfc_encoding_t encodingType = sigParam->encodingType;
+
     //========== Check arguments
     //----- Check input data
     if (!data || !size) {
@@ -29,9 +32,9 @@ int nfc_encodeData(
         return -1;
     }
     //----- Check encoding type
-    if (encoding_type != MOD_MILLER && 
-        encoding_type != NRZ && 
-        encoding_type != MANCHESTER) {
+    if (encodingType != MOD_MILLER && 
+        encodingType != NRZ && 
+        encodingType != MANCHESTER) {
         PRINT(ERR, "Invalid encoding type");
         return -1;
     }
@@ -45,7 +48,7 @@ int nfc_encodeData(
     }
 
     //========== Encode data
-    switch (encoding_type) {
+    switch (encodingType) {
         //----- Modified miller encoding
         case MOD_MILLER:
             PRINT(INFO, "Encoding data with modified miller encoding");
@@ -161,13 +164,14 @@ int nfc_encodeData(
 int nfc_modulateSubCarrier(
     char* encodeData,
     size_t encodedSize,
-    nfc_subModulation_t subModulation,
-    unsigned int bitRate,
-    unsigned int subCarrierFreq,
+    nfc_sigParam_t* sigParam,
     char** subModulatedData,
     size_t* subModulatedSize
 ) {
     //========== Variables declaration
+    nfc_subModulation_t subModulation = sigParam->subModulation;
+    unsigned int bitRate              = sigParam->bitRate;
+    unsigned int subCarrierFreq       = sigParam->subCarrierFreq;
     char isEven = 0;                             // Flag to know if the current
                                                  // value in the sub-carrier has to be 0 or 1
 
@@ -288,15 +292,16 @@ int nfc_modulateSubCarrier(
 int nfc_createEnvelope(
     char* subModulatedData,
     size_t subModulatedSize,
-    nfc_subModulation_t subModulation,
-    unsigned int bitRate,
-    unsigned int subCarrierFreq,
-    unsigned char modulationIndex,
-    unsigned int simDuration,
-    unsigned int numberOfPoints,
+    nfc_sigParam_t* sigParam,
     scatter_t* envelope
 ) {
     //========== Variables declaration
+    nfc_subModulation_t subModulation = sigParam->subModulation;
+    unsigned int bitRate              = sigParam->bitRate;
+    unsigned int subCarrierFreq       = sigParam->subCarrierFreq;
+    unsigned char modulationIndex     = sigParam->modulationIndex;
+    unsigned int simDuration          = sigParam->simDuration;
+    unsigned int numberOfPoints       = sigParam->numberOfPoints;
     double modulationDepth;                      // Depth of the modulation, 
                                                  // we suppose that the 
                                                  // amplitude of the signal is 1
@@ -375,9 +380,12 @@ int nfc_createEnvelope(
 
 int nfc_modulate(
     scatter_t enveloppe,
-    unsigned int carrierFreq,
+    nfc_sigParam_t* sigParam,
     scatter_t* modulatedSignal
 ) {
+    //========== Variables declaration
+    unsigned int carrierFreq = sigParam->carrierFreq;
+
     //========== Check arguments
     if (!enveloppe->points || !enveloppe->size) {
         PRINT(ERR, "Enveloppe cannot be NULL or empty");
@@ -407,9 +415,12 @@ int nfc_modulate(
 
 int nfc_addNoise(
     scatter_t signal,
-    double noiseLevel,
+    nfc_sigParam_t* sigParam,
     scatter_t* noisySignal
 ) {
+    //========== Variables declaration
+    double noiseLevel = sigParam->noiseLevel;
+
     //========== Check arguments
     if (!signal->points || !signal->size) {
         PRINT(ERR, "Signal cannot be NULL or empty");
@@ -438,7 +449,7 @@ int nfc_addNoise(
 int nfc_createSignal(
     char* data, size_t size,
     unsigned int bitRate,
-    nfc_encoding_t encoding_type,
+    nfc_encoding_t encodingType,
     nfc_subModulation_t subModulation,
     unsigned int subCarrierFreq,
     unsigned int carrierFreq,
@@ -449,12 +460,13 @@ int nfc_createSignal(
     scatter_t* signal
 ) {
     //========== Variables declaration
-    char*     encodedData      = NULL;           // Encoded data
-    size_t    encodedSize      = 0;              // Size of the encoded data
-    char*     subModulatedData = NULL;           // Sub-carrier modulated data
-    size_t    subModulatedSize = 0;              // Size of the sub-carrier modulated data
-    scatter_t envelope         = NULL;           // Envelope of the signal
-    scatter_t modulatedSignal  = NULL;           // Modulated signal
+    char*          encodedData      = NULL;      // Encoded data
+    size_t         encodedSize      = 0;         // Size of the encoded data
+    char*          subModulatedData = NULL;      // Sub-carrier modulated data
+    size_t         subModulatedSize = 0;         // Size of the sub-carrier modulated data
+    scatter_t      envelope         = NULL;      // Envelope of the signal
+    scatter_t      modulatedSignal  = NULL;      // Modulated signal
+    nfc_sigParam_t sigParam;                     // Parameters of the signal
 
     //========== Check arguments
     /* Inch no need, already done in sub-functions */
@@ -464,7 +476,7 @@ int nfc_createSignal(
     PRINT(INFO, "Data:                   %s",       data);
     PRINT(INFO, "Size:                   %ld",      size);
     PRINT(INFO, "Bit rate:               %d bit/s", bitRate);
-    PRINT(INFO, "Encoding type:          %d",       encoding_type);
+    PRINT(INFO, "Encoding type:          %d",       encodingType);
     PRINT(INFO, "Sub-carrier modulation: %d",       subModulation);
     PRINT(INFO, "Sub-carrier frequency:  %d Hz",    subCarrierFreq);
     PRINT(INFO, "Carrier frequency:      %d Hz",    carrierFreq);
@@ -479,11 +491,23 @@ int nfc_createSignal(
     //     PRINT(DBG, "Data: [%d]\t0x%02X", i, data[i]);
     // }
 
+    //========== Prepare parameters
+    sigParam.data            = data;
+    sigParam.dataSize        = size;
+    sigParam.bitRate         = bitRate;
+    sigParam.encodingType    = encodingType;
+    sigParam.subModulation   = subModulation;
+    sigParam.subCarrierFreq  = subCarrierFreq;
+    sigParam.carrierFreq     = carrierFreq;
+    sigParam.modulationIndex = modulationIndex;
+    sigParam.noiseLevel      = noiseLevel;
+    sigParam.simDuration     = simDuration;
+    sigParam.numberOfPoints  = numberOfPoints;
+
     //========== Encode data
     PRINT(INFO, "Encoding data");
     if (nfc_encodeData(
-        data, size,
-        encoding_type,
+        &sigParam,
         &encodedData, &encodedSize
     )) {
         PRINT(ERR, "Failed to encode data");
@@ -499,9 +523,7 @@ int nfc_createSignal(
     PRINT(INFO, "Modulating data with sub-carrier");
     if (nfc_modulateSubCarrier(
         encodedData, encodedSize,
-        subModulation,
-        bitRate,
-        subCarrierFreq,
+        &sigParam,
         &subModulatedData, &subModulatedSize
     )) {
         PRINT(ERR, "Failed to modulate data with sub-carrier");
@@ -518,11 +540,7 @@ int nfc_createSignal(
     PRINT(INFO, "Generating envelope");
     if (nfc_createEnvelope(
         subModulatedData, subModulatedSize,
-        subModulation,
-        bitRate,
-        subCarrierFreq,
-        modulationIndex,
-        simDuration, numberOfPoints,
+        &sigParam,
         &envelope
     )) {
         PRINT(ERR, "Failed to generate envelope");
@@ -538,7 +556,7 @@ int nfc_createSignal(
     PRINT(INFO, "Modulating signal");
     if (nfc_modulate(
         envelope, 
-        carrierFreq,
+        &sigParam,
         noiseLevel ? &modulatedSignal : signal
     )) {
         PRINT(ERR, "Failed to modulate signal");
@@ -564,7 +582,7 @@ int nfc_createSignal(
     PRINT(INFO, "Adding noise to the signal");
     if (nfc_addNoise(
         modulatedSignal,
-        noiseLevel,
+        &sigParam,
         signal
     )) {
         PRINT(ERR, "Failed to add noise to the signal");
