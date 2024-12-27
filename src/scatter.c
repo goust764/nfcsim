@@ -14,7 +14,7 @@
 #include "config.h"
 #include "logging.h"
 
-int scatter_create(scatter_t** scatter, size_t size) {
+int scatter_create(scatter_t* scatter, size_t size) {
     *scatter = malloc(sizeof(**scatter));
 
     if (!(*scatter)) {
@@ -36,12 +36,12 @@ int scatter_create(scatter_t** scatter, size_t size) {
     return 0;
 }
 
-void scatter_setName(scatter_t* scatter, char* xName, char* yName) {
+void scatter_setName(scatter_t scatter, char* xName, char* yName) {
     scatter->xName = xName;
     scatter->yName = yName;
 }
 
-int scatter_createWName(scatter_t** scatter, size_t size, char* xName, char* yName) {
+int scatter_createWName(scatter_t* scatter, size_t size, char* xName, char* yName) {
     if (scatter_create(scatter, size))
         return -1;
 
@@ -50,28 +50,34 @@ int scatter_createWName(scatter_t** scatter, size_t size, char* xName, char* yNa
     return 0;
 }
 
-void scatter_destroy(scatter_t* scatter) {
+void scatter_destroy(scatter_t scatter) {
     free(scatter->points);
     free(scatter);
 }
 
 double scatter_getY(scatter_t scatter, size_t index) {
-    return scatter.points[index].y;
+    return scatter->points[index].y;
 }
 
 void scatter_setY(scatter_t scatter, size_t index, double y) {
-    scatter.points[index].y = y;
+    scatter->points[index].y = y;
 }
 
 int scatter_getX(scatter_t scatter, size_t index) {
-    return scatter.points[index].x;
+    return scatter->points[index].x;
 }
 
 void scatter_setX(scatter_t scatter, size_t index, int x) {
-    scatter.points[index].x = x;
+    scatter->points[index].x = x;
 }
 
 void scatter_print(scatter_t scatter, char separator, print_type_t print_type) {
-    for (int i = 0; (size_t)i < scatter.size; i=i+1)
-        PRINT(print_type, "%d%c%lf", scatter.points[i].x, separator, scatter.points[i].y);
+    for (size_t i = 0; i < scatter->size; i=i+1)
+        PRINT(
+            print_type,
+            "%lld%c%lf",
+            scatter_getX(scatter, i),
+            separator,
+            scatter_getX(scatter, i)
+        );
 }

@@ -294,7 +294,7 @@ int nfc_createEnvelope(
     unsigned char modulationIndex,
     unsigned int simDuration,
     unsigned int numberOfPoints,
-    scatter_t** envelope
+    scatter_t* envelope
 ) {
     //========== Variables declaration
     double modulationDepth;                      // Depth of the modulation, 
@@ -376,29 +376,29 @@ int nfc_createEnvelope(
 int nfc_modulate(
     scatter_t enveloppe,
     unsigned int carrierFreq,
-    scatter_t** modulatedSignal
+    scatter_t* modulatedSignal
 ) {
     //========== Check arguments
-    if (!enveloppe.points || !enveloppe.size) {
+    if (!enveloppe->points || !enveloppe->size) {
         PRINT(ERR, "Enveloppe cannot be NULL or empty");
         return -1;
     }
 
     //========== Allocate memory for the modulated signal
-    if (scatter_create(modulatedSignal, enveloppe.size)) {
+    if (scatter_create(modulatedSignal, enveloppe->size)) {
         PRINT(ERR, "Failed to allocate memory for the modulated signal");
         return -1;
     }
 
     //========== Modulate signal
     for (int i = 0; (size_t)i < (*modulatedSignal)->size; i=i+1) {
-        (*modulatedSignal)->points[i].x =   enveloppe.points[i].x;
-        (*modulatedSignal)->points[i].y =   enveloppe.points[i].y * 
+        (*modulatedSignal)->points[i].x =   enveloppe->points[i].x;
+        (*modulatedSignal)->points[i].y =   enveloppe->points[i].y * 
                                             sin(
                                                 (double)2 *
                                                 (double)M_PI *
                                                 (double)carrierFreq *
-                                                (double)(enveloppe.points[i].x) / (double)1e9
+                                                (double)(enveloppe->points[i].x) / (double)1e9
                                             );
     }
 
@@ -408,10 +408,10 @@ int nfc_modulate(
 int nfc_addNoise(
     scatter_t signal,
     double noiseLevel,
-    scatter_t** noisySignal
+    scatter_t* noisySignal
 ) {
     //========== Check arguments
-    if (!signal.points || !signal.size) {
+    if (!signal->points || !signal->size) {
         PRINT(ERR, "Signal cannot be NULL or empty");
         return -1;
     }
@@ -421,15 +421,15 @@ int nfc_addNoise(
     }
 
     //========== Allocate memory for the noisy signal
-    if (scatter_create(noisySignal, signal.size)) {
+    if (scatter_create(noisySignal, signal->size)) {
         PRINT(ERR, "Failed to allocate memory for the noisy signal");
         return -1;
     }
 
     //========== Add noise
     for (unsigned int i = 0; i < (*noisySignal)->size; i=i+1) {
-        (*noisySignal)->points[i].x = signal.points[i].x;
-        (*noisySignal)->points[i].y = signal.points[i].y + noiseLevel * ((double)rand() / (double)RAND_MAX - 0.5);
+        (*noisySignal)->points[i].x = signal->points[i].x;
+        (*noisySignal)->points[i].y = signal->points[i].y + noiseLevel * ((double)rand() / (double)RAND_MAX - 0.5);
     }
 
     return 0;
@@ -446,15 +446,15 @@ int nfc_createSignal(
     double noiseLevel,
     unsigned int simDuration,
     unsigned int numberOfPoints,
-    scatter_t** signal
+    scatter_t* signal
 ) {
     //========== Variables declaration
-    char*      encodedData      = NULL;          // Encoded data
-    size_t     encodedSize      = 0;             // Size of the encoded data
-    char*      subModulatedData = NULL;          // Sub-carrier modulated data
-    size_t     subModulatedSize = 0;             // Size of the sub-carrier modulated data
-    scatter_t* envelope         = NULL;          // Envelope of the signal
-    scatter_t* modulatedSignal  = NULL;          // Modulated signal
+    char*     encodedData      = NULL;           // Encoded data
+    size_t    encodedSize      = 0;              // Size of the encoded data
+    char*     subModulatedData = NULL;           // Sub-carrier modulated data
+    size_t    subModulatedSize = 0;              // Size of the sub-carrier modulated data
+    scatter_t envelope         = NULL;           // Envelope of the signal
+    scatter_t modulatedSignal  = NULL;           // Modulated signal
 
     //========== Check arguments
     /* Inch no need, already done in sub-functions */
@@ -537,7 +537,7 @@ int nfc_createSignal(
     //========== Modulate signal
     PRINT(INFO, "Modulating signal");
     if (nfc_modulate(
-        *envelope, 
+        envelope, 
         carrierFreq,
         noiseLevel ? &modulatedSignal : signal
     )) {
@@ -563,7 +563,7 @@ int nfc_createSignal(
 
     PRINT(INFO, "Adding noise to the signal");
     if (nfc_addNoise(
-        *modulatedSignal,
+        modulatedSignal,
         noiseLevel,
         signal
     )) {

@@ -27,6 +27,6 @@
  * @param filename Name of the file to write
  * @return int - 0 if success, -1 otherwise
  */
-int writeCSV(scatter_t** scatters, size_t nbScatters, char* filename);
+int writeCSV(scatter_t* scatters, size_t nbScatters, char* filename);
 
 #endif // CSV_H

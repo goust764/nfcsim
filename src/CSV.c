@@ -14,7 +14,7 @@
 #include "config.h"
 #include "logging.h"
 
-int writeCSV(scatter_t** scatters, size_t nbScatters, char* filename) {
+int writeCSV(scatter_t* scatters, size_t nbScatters, char* filename) {
     PRINT(INFO, "Writing %ld cloud(s) of points to file \"%s\"", nbScatters, filename);
 
     //========== Variables declaration

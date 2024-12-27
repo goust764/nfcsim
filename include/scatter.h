@@ -34,7 +34,7 @@ typedef struct cloudPoint {
     point_t* points;                             // Array of points
     char*    xName;                              // Name of the X axis
     char*    yName;                              // Name of the Y axis
-} scatter_t;
+} *scatter_t;
 
 //========== Functions
 /**
@@ -44,7 +44,7 @@ typedef struct cloudPoint {
  * @param size Number of points
  * @return int - 0 if success, -1 otherwise
  */
-int scatter_create(scatter_t** scatter, size_t size);
+int scatter_create(scatter_t* scatter, size_t size);
 
 /**
  * @brief Set the name of the axis of a cloud of points
@@ -53,7 +53,7 @@ int scatter_create(scatter_t** scatter, size_t size);
  * @param xName Name of the X axis
  * @param yName Name of the Y axis
  */
-void scatter_setName(scatter_t* scatter, char* xName, char* yName);
+void scatter_setName(scatter_t scatter, char* xName, char* yName);
 
 /**
  * @brief Create a cloud of points with axis names
@@ -64,14 +64,14 @@ void scatter_setName(scatter_t* scatter, char* xName, char* yName);
  * @param yName Name of the Y axis
  * @return int - 0 if success, -1 otherwise
  */
-int scatter_createWName(scatter_t** scatter, size_t size, char* xName, char* yName);
+int scatter_createWName(scatter_t* scatter, size_t size, char* xName, char* yName);
 
 /**
  * @brief Destroy a cloud of points
  * 
  * @param scatter Pointer to the cloud of points to destroy
  */
-void scatter_destroy(scatter_t* scatter);
+void scatter_destroy(scatter_t scatter);
 
 /**
  * @brief Return the Y value of a point in the cloud

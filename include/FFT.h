@@ -30,7 +30,7 @@ double fft_getAvgSamplingRate(scatter_t timeSerie);
  * @param out Cloud of points with the FFT result
  * @return int - 0 if success, -1 otherwise
  */
-int fft_Iterative(scatter_t in, scatter_t* out);
+int fft_Iterative(scatter_t in, scatter_t out);
 
 /**
  * @brief Transform a time serie into a frequency serie
@@ -39,6 +39,6 @@ int fft_Iterative(scatter_t in, scatter_t* out);
  * @param freqSerie Frequency serie.
  * @return int - 0 if success, -1 otherwise
  */
-int fft_Compute(scatter_t timeSerie, scatter_t** freqSerie);
+int fft_Compute(scatter_t timeSerie, scatter_t* freqSerie);
 
 #endif // FFT_H

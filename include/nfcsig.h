@@ -97,7 +97,7 @@ int nfc_modulateSubCarrier(char* encodeData, size_t encodedSize, nfc_subModulati
  * @param envelope Envelope of the signal (amplitude vs time in ns)
  * @return int - 0 if success, -1 otherwise
  */
-int nfc_createEnvelope(char* subModulatedData, size_t subModulatedSize, nfc_subModulation_t subModulation, unsigned int bitRate, unsigned int subCarrierFreq, unsigned char modulationIndex, unsigned int simDuration, unsigned int numberOfPoints, scatter_t** envelope);
+int nfc_createEnvelope(char* subModulatedData, size_t subModulatedSize, nfc_subModulation_t subModulation, unsigned int bitRate, unsigned int subCarrierFreq, unsigned char modulationIndex, unsigned int simDuration, unsigned int numberOfPoints, scatter_t* envelope);
 
 //========== Modulation
 /**
@@ -108,7 +108,7 @@ int nfc_createEnvelope(char* subModulatedData, size_t subModulatedSize, nfc_subM
  * @param modulatedSignal Modulated signal (amplitude vs time in ns)
  * @return int - 0 if success, -1 otherwise
  */
-int nfc_modulate(scatter_t enveloppe, unsigned int carrierFreq, scatter_t** modulatedSignal);
+int nfc_modulate(scatter_t enveloppe, unsigned int carrierFreq, scatter_t* modulatedSignal);
 
 //========== Noise
 /**
@@ -119,7 +119,7 @@ int nfc_modulate(scatter_t enveloppe, unsigned int carrierFreq, scatter_t** modu
  * @param noisySignal Noisy signal (amplitude vs time in ns)
  * @return int - 0 if success, -1 otherwise
  */
-int nfc_addNoise(scatter_t signal, double noiseLevel, scatter_t** noisySignal);
+int nfc_addNoise(scatter_t signal, double noiseLevel, scatter_t* noisySignal);
 
 //========== General function
 /**
@@ -139,6 +139,6 @@ int nfc_addNoise(scatter_t signal, double noiseLevel, scatter_t** noisySignal);
  * @param signal Generated signal (amplitude vs time in ns)
  * @return int - 0 if success, -1 otherwise
  */
-int nfc_createSignal(char* data, size_t size, unsigned int bitRate, nfc_encoding_t encoding_type, nfc_subModulation_t subModulation, unsigned int subCarrierFreq, unsigned int carrierFreq, unsigned char modulationIndex, double noiseLevel, unsigned int simDuration, unsigned int numberOfPoints, scatter_t** signal);
+int nfc_createSignal(char* data, size_t size, unsigned int bitRate, nfc_encoding_t encoding_type, nfc_subModulation_t subModulation, unsigned int subCarrierFreq, unsigned int carrierFreq, unsigned char modulationIndex, double noiseLevel, unsigned int simDuration, unsigned int numberOfPoints, scatter_t* signal);
 
 #endif // NFCSIG_H

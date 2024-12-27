@@ -1,6 +1,7 @@
 - [X] CSV export do visualize signals in a spreadsheet
 - [X] FFT function
-- [ ] Switch scatter up to one level up of pointer
+- [ ] Add a command line interface
+- [*] Switch scatter up to one level up of pointer
 - [ ] Demodulation system
 - [ ] Skip sub-modulation if not required
 - [ ] Englobe signal parameters in a structure (ask AI ?)

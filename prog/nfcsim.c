@@ -27,7 +27,7 @@
 int main(/*int argc, char *argv[]*/) {
     //========== Variable declaration
     char* data = "Hello, World!";
-    scatter_t* signals[2] = {NULL, NULL};        // NFC signal and its FFT
+    scatter_t signals[2] = {NULL, NULL};         // NFC signal and its FFT
 
     //========== Generate NFC signal
     if (nfc_createSignal(
@@ -49,7 +49,7 @@ int main(/*int argc, char *argv[]*/) {
     }
     
     //========== Apply FFT
-    if (fft_Compute(*signals[0], &signals[1])) {
+    if (fft_Compute(signals[0], &signals[1])) {
         PRINT(ERR, "Failed to apply the FFT");
         scatter_destroy(signals[0]);
         return -1;
