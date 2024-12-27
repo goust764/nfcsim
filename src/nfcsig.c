@@ -15,6 +15,23 @@
 #include <stdlib.h>
 #include <math.h>
 
+int nfc_autoSimTime(nfc_sigParam_t* sigParam) {
+    //========== Variables declaration
+    unsigned int bitRate = sigParam->bitRate;
+    size_t size          = sigParam->dataSize;
+
+    //========== Check arguments
+    if (bitRate == 0) {
+        PRINT(ERR, "Bit rate cannot be null");
+        return -1;
+    }
+
+    //========== Calculate the simulation time
+    sigParam->simDuration = (unsigned int)((size * 8 * (unsigned long long)1e9) / (unsigned long long)bitRate);
+
+    return 0;
+}
+
 int nfc_encodeData(
     nfc_sigParam_t* sigParam,
     char** encodedData,
@@ -48,6 +65,10 @@ int nfc_encodeData(
     }
 
     //========== Encode data
+            for (int i = 0; i < *encodedSize; i=i+1) {
+                // PRINT(DBG, "Encoded data: [%d]", i);
+                (*encodedData)[i] = 69;
+            }
     switch (encodingType) {
         //----- Modified miller encoding
         case MOD_MILLER:
@@ -68,7 +89,7 @@ int nfc_encodeData(
             }
             for (int i = 0; (size_t)i < size; i=i+1) {
                 for (int j = 0; j < 8; j=j+1) {
-                    if (i != 0 && j != 0) {      // Skip the first bit, already encoded above
+                    if (i != 0 || j != 0) {      // Skip the first bit, already encoded above
                         // Bit at 1
                         if ((data[i] >> j) & 0x01) {
                             (*encodedData)[32*i+4*j  ] = 0x01;
@@ -79,9 +100,9 @@ int nfc_encodeData(
                         // Bit at 0 after a 1
                         else if (
                             // Check the last bit of the previous byte
-                            (j == 0 && ((data[i] >> j) & 0x01) && !(data[i-1] >> 7            )) ||
+                            (j == 0 && !((data[i] >> j) & 0x01) && (data[i-1] >> 7            )) ||
                             // Check the previous bit of the current byte
-                            (j != 0 && ((data[i] >> j) & 0x01) && !((data[i]  >> (j-1)) & 0x01))
+                            (j != 0 && !((data[i] >> j) & 0x01) && ((data[i]  >> (j-1)) & 0x01))
                         ) {
                             (*encodedData)[32*i+4*j  ] = 0x01;
                             (*encodedData)[32*i+4*j+1] = 0x01;
@@ -447,16 +468,7 @@ int nfc_addNoise(
 }
 
 int nfc_createSignal(
-    char* data, size_t size,
-    unsigned int bitRate,
-    nfc_encoding_t encodingType,
-    nfc_subModulation_t subModulation,
-    unsigned int subCarrierFreq,
-    unsigned int carrierFreq,
-    unsigned char modulationIndex,
-    double noiseLevel,
-    unsigned int simDuration,
-    unsigned int numberOfPoints,
+    nfc_sigParam_t* sigParam,
     scatter_t* signal
 ) {
     //========== Variables declaration
@@ -466,48 +478,33 @@ int nfc_createSignal(
     size_t         subModulatedSize = 0;         // Size of the sub-carrier modulated data
     scatter_t      envelope         = NULL;      // Envelope of the signal
     scatter_t      modulatedSignal  = NULL;      // Modulated signal
-    nfc_sigParam_t sigParam;                     // Parameters of the signal
 
     //========== Check arguments
     /* Inch no need, already done in sub-functions */
 
     //========== Printing parameters
     PRINT(INFO, "===== NFC SIGNAL GENERATION PARAMETERS =====");
-    PRINT(INFO, "Data:                   %s",       data);
-    PRINT(INFO, "Size:                   %ld",      size);
-    PRINT(INFO, "Bit rate:               %d bit/s", bitRate);
-    PRINT(INFO, "Encoding type:          %d",       encodingType);
-    PRINT(INFO, "Sub-carrier modulation: %d",       subModulation);
-    PRINT(INFO, "Sub-carrier frequency:  %d Hz",    subCarrierFreq);
-    PRINT(INFO, "Carrier frequency:      %d Hz",    carrierFreq);
-    PRINT(INFO, "Modulation index:       %d%%",     modulationIndex);
-    PRINT(INFO, "Noise level:            %f",       noiseLevel);
-    PRINT(INFO, "Simulation duration:    %d ms",    simDuration);
-    PRINT(INFO, "Number of points:       %d",       numberOfPoints);
+    PRINT(INFO, "Data:                   %s",       sigParam->data);
+    PRINT(INFO, "Size:                   %ld",      sigParam->dataSize);
+    PRINT(INFO, "Bit rate:               %d bit/s", sigParam->bitRate);
+    PRINT(INFO, "Encoding type:          %d",       sigParam->encodingType);
+    PRINT(INFO, "Sub-carrier modulation: %d",       sigParam->subModulation);
+    PRINT(INFO, "Sub-carrier frequency:  %d Hz",    sigParam->subCarrierFreq);
+    PRINT(INFO, "Carrier frequency:      %d Hz",    sigParam->carrierFreq);
+    PRINT(INFO, "Modulation index:       %d%%",     sigParam->modulationIndex);
+    PRINT(INFO, "Noise level:            %f",       sigParam->noiseLevel);
+    PRINT(INFO, "Simulation duration:    %d ms",    sigParam->simDuration);
+    PRINT(INFO, "Number of points:       %d",       sigParam->numberOfPoints);
     PRINT(INFO, "============================================");
 
     // PRINT(DBG, "===== INPUT DATA =====");
-    // for (int i = 0; (size_t)i < size; i=i+1) {
+    // for (int i = 0; (size_t)i < size; i=i+1)
     //     PRINT(DBG, "Data: [%d]\t0x%02X", i, data[i]);
-    // }
-
-    //========== Prepare parameters
-    sigParam.data            = data;
-    sigParam.dataSize        = size;
-    sigParam.bitRate         = bitRate;
-    sigParam.encodingType    = encodingType;
-    sigParam.subModulation   = subModulation;
-    sigParam.subCarrierFreq  = subCarrierFreq;
-    sigParam.carrierFreq     = carrierFreq;
-    sigParam.modulationIndex = modulationIndex;
-    sigParam.noiseLevel      = noiseLevel;
-    sigParam.simDuration     = simDuration;
-    sigParam.numberOfPoints  = numberOfPoints;
 
     //========== Encode data
     PRINT(INFO, "Encoding data");
     if (nfc_encodeData(
-        &sigParam,
+        sigParam,
         &encodedData, &encodedSize
     )) {
         PRINT(ERR, "Failed to encode data");
@@ -515,15 +512,14 @@ int nfc_createSignal(
     }
 
     // PRINT(DBG, "===== ENCODED DATA =====");
-    // for (int i = 0; (size_t)i < encodedSize; i=i+1) {
+    // for (int i = 0; (size_t)i < encodedSize; i=i+1)
     //     PRINT(DBG, "Encoded data: [%d]\t%d", i, encodedData[i]);
-    // }
 
     //========== Sub-carrier modulation
     PRINT(INFO, "Modulating data with sub-carrier");
     if (nfc_modulateSubCarrier(
         encodedData, encodedSize,
-        &sigParam,
+        sigParam,
         &subModulatedData, &subModulatedSize
     )) {
         PRINT(ERR, "Failed to modulate data with sub-carrier");
@@ -532,15 +528,14 @@ int nfc_createSignal(
     }
 
     // PRINT(DBG, "===== SUB-MODULATED DATA =====");
-    // for (int i = 0; (size_t)i < subModulatedSize; i=i+1) {
+    // for (int i = 0; (size_t)i < subModulatedSize; i=i+1)
     //     PRINT(DBG, "Sub-modulated data: [%d]\t%d", i, subModulatedData[i]);
-    // }
 
     //========== Generate envelope
     PRINT(INFO, "Generating envelope");
     if (nfc_createEnvelope(
         subModulatedData, subModulatedSize,
-        &sigParam,
+        sigParam,
         &envelope
     )) {
         PRINT(ERR, "Failed to generate envelope");
@@ -556,8 +551,8 @@ int nfc_createSignal(
     PRINT(INFO, "Modulating signal");
     if (nfc_modulate(
         envelope, 
-        &sigParam,
-        noiseLevel ? &modulatedSignal : signal
+        sigParam,
+        sigParam->noiseLevel ? &modulatedSignal : signal
     )) {
         PRINT(ERR, "Failed to modulate signal");
         free(encodedData);
@@ -570,7 +565,7 @@ int nfc_createSignal(
     // scatter_print(*modulatedSignal, '\t', DBG);
 
     //========== Add noise
-    if (!noiseLevel) {
+    if (!sigParam->noiseLevel) {
         PRINT(INFO, "Skipping noise addition");
         free(encodedData);
         free(subModulatedData);
@@ -582,7 +577,7 @@ int nfc_createSignal(
     PRINT(INFO, "Adding noise to the signal");
     if (nfc_addNoise(
         modulatedSignal,
-        &sigParam,
+        sigParam,
         signal
     )) {
         PRINT(ERR, "Failed to add noise to the signal");
@@ -600,5 +595,118 @@ int nfc_createSignal(
     scatter_destroy(modulatedSignal);
 
     PRINT(SUCC, "Signal successfully generated");
+    return 0;
+}
+
+int nfc_standardSignal(
+    char* data,
+    size_t size,
+    nfc_standard_t standard,
+    nfc_dataTransm_t dataTransm,
+    unsigned int bitRate,
+    double noiseLevel,
+    unsigned int numberOfPoints,
+    scatter_t* signal
+) {
+    //========== Variables declaration
+    nfc_sigParam_t sigParam;                     // Parameters of the signal
+
+    //========== Check arguments
+    if (standard != NFC_A && standard != NFC_B) {
+        PRINT(ERR, "Invalid NFC standard");
+        return -1;
+    }
+    if (dataTransm != PCD && dataTransm != PICC) {
+        PRINT(ERR, "Invalid data transmission mode");
+        return -1;
+    }
+    if (bitRate < 106000 || bitRate > 424000)
+        PRINT(
+            WARN,
+            "Non-standard bit rate of %d bit/s, should be between 106 kbit/s and 424 kbit/s", 
+            bitRate
+        );
+
+    //========== Prepare parameters
+    sigParam.data            = data;
+    sigParam.dataSize        = size;
+    sigParam.bitRate         = bitRate;
+    sigParam.carrierFreq     = CARRIER_FREQ;
+    sigParam.noiseLevel      = noiseLevel;
+    sigParam.numberOfPoints  = numberOfPoints;
+
+    switch (standard) {
+        //----- NFC-A standard
+        case NFC_A:
+            PRINT(INFO, "Generating NFC-A signal");
+            switch (dataTransm) {
+                //----- Proximity Coupling Device
+                case PCD:
+                    PRINT(INFO, "PCD data transmitter");
+                    sigParam.encodingType    = MOD_MILLER;
+                    sigParam.subModulation   = NONE;
+                    sigParam.subCarrierFreq  = 0;
+                    sigParam.modulationIndex = 100;
+                break;
+
+                //----- Proximity Integrated Circuit Card
+                case PICC:
+                    PRINT(INFO, "PICC data transmitter");
+                    sigParam.encodingType    = MANCHESTER;
+                    sigParam.subModulation   = OOK;
+                    sigParam.subCarrierFreq  = SUB_CARRIER_FREQ;
+                    sigParam.modulationIndex = 10;
+                break;
+
+                //----- Default case
+                default:
+                    PRINT(ERR, "Invalid data transmission mode");
+                    return -1;
+                break;
+            }
+        break;
+
+        //----- NFC-B standard
+        case NFC_B:
+            PRINT(INFO, "Generating NFC-B signal");
+            switch (dataTransm) {
+                //----- Proximity Coupling Device
+                case PCD:
+                    PRINT(INFO, "PCD data transmitter");
+                    sigParam.encodingType    = NRZ;
+                    sigParam.subModulation   = NONE;
+                    sigParam.subCarrierFreq  = 0;
+                    sigParam.modulationIndex = 10;
+                break;
+
+                //----- Proximity Integrated Circuit Card
+                case PICC:
+                    PRINT(INFO, "PICC data transmitter");
+                    sigParam.encodingType    = NRZ;
+                    sigParam.subModulation   = BPSK;
+                    sigParam.subCarrierFreq  = SUB_CARRIER_FREQ;
+                    sigParam.modulationIndex = 10;
+                break;
+
+                //----- Default case
+                default:
+                    PRINT(ERR, "Invalid data transmission mode");
+                    return -1;
+                break;
+            }
+        break;
+    }
+
+    nfc_autoSimTime(&sigParam);
+
+    //========== Generate signal
+    if (nfc_createSignal(
+        &sigParam,
+        signal
+    )) {
+        PRINT(ERR, "Failed to generate signal");
+        return -1;
+    }
+
     return 0;
 }

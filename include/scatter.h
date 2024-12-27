@@ -52,8 +52,9 @@ int scatter_create(scatter_t* scatter, size_t size);
  * @param scatter Cloud of points
  * @param xName Name of the X axis
  * @param yName Name of the Y axis
+ * @return int - 0 if success, -1 otherwise
  */
-void scatter_setName(scatter_t scatter, char* xName, char* yName);
+int scatter_setName(scatter_t scatter, char* xName, char* yName);
 
 /**
  * @brief Create a cloud of points with axis names

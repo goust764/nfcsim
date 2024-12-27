@@ -54,6 +54,34 @@ typedef struct {
     unsigned int        numberOfPoints;          // Number of points to generate
 } nfc_sigParam_t;
 
+/**
+ * @brief NFC standards
+ * 
+ */
+typedef enum {
+    NFC_A,                                       // NFC-A standard
+    NFC_B                                        // NFC-B standard
+} nfc_standard_t;
+
+/**
+ * @brief NFC data transmission mode
+ * 
+ */
+typedef enum {
+    PCD,                                          // Proximity Coupling Device
+    PICC                                          // Proximity Integrated Circuit Card
+} nfc_dataTransm_t;
+
+//========== Useful functions
+/**
+ * @brief Configure automatically the simulation time based on the bit rate and
+ *        the size of the data
+ * 
+ * @param sigParam Parameters of the signal
+ * @return int - 0 if success, -1 otherwise
+ */
+int nfc_autoSimTime(nfc_sigParam_t* sigParam);
+
 //========== Signal coding
 /**
  * @brief Convert a serie of bytes into encoded bits.
@@ -123,20 +151,25 @@ int nfc_addNoise(scatter_t signal, nfc_sigParam_t* sigParam, scatter_t* noisySig
 /**
  * @brief Generate an NFC signal
  * 
+ * @param sigParam Parameters of the signal
+ * @param signal Generated signal (amplitude vs time in ns)
+ * @return int - 0 if success, -1 otherwise
+ */
+int nfc_createSignal(nfc_sigParam_t* sigParam, scatter_t* signal);
+
+/**
+ * @brief Generate a standard NFC signal
+ * 
  * @param data Data to encode
- * @param size Size of the data
- * @param bitRate Bit rate of the input data
- * @param encodingType Type of encoding to apply to the data
- * @param subModulation Type of sub-carrier modulation
- * @param subCarrierFreq Frequency of the sub-carrier (Hz)
- * @param carrierFreq Frequency of the carrier (Hz)
- * @param modulationIndex Index of the modulation of the envelope (%)
- * @param noiseLevel Signal to noise ratio
- * @param simDuration Duration of the simulation (ns)
+ * @param size Size of the data in bytes
+ * @param standard NFC standard to use (A or B)
+ * @param dataTransm Data transmission mode (PCD or PICC)
+ * @param bitRate Bit rate of the input data (bit/s)
+ * @param noiseLevel Signal to noise ratio between 0 and 1
  * @param numberOfPoints Number of points to generate
  * @param signal Generated signal (amplitude vs time in ns)
  * @return int - 0 if success, -1 otherwise
  */
-int nfc_createSignal(char* data, size_t size, unsigned int bitRate, nfc_encoding_t encodingType, nfc_subModulation_t subModulation, unsigned int subCarrierFreq, unsigned int carrierFreq, unsigned char modulationIndex, double noiseLevel, unsigned int simDuration, unsigned int numberOfPoints, scatter_t* signal);
+int nfc_standardSignal(char* data, size_t size, nfc_standard_t standard, nfc_dataTransm_t dataTransm, unsigned int bitRate, double noiseLevel, unsigned int numberOfPoints, scatter_t* signal);
 
 #endif // NFCSIG_H

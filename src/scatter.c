@@ -36,9 +36,16 @@ int scatter_create(scatter_t* scatter, size_t size) {
     return 0;
 }
 
-void scatter_setName(scatter_t scatter, char* xName, char* yName) {
+int scatter_setName(scatter_t scatter, char* xName, char* yName) {
+    if (!scatter) {
+        PRINT(ERR, "Scatter cannot be NULL");
+        return -1;
+    }
+
     scatter->xName = xName;
     scatter->yName = yName;
+
+    return 0;
 }
 
 int scatter_createWName(scatter_t* scatter, size_t size, char* xName, char* yName) {

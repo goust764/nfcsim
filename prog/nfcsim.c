@@ -26,52 +26,91 @@
  */
 int main(/*int argc, char *argv[]*/) {
     //========== Variable declaration
-    char* data = "Hello, World!";
-    scatter_t signals[2] = {NULL, NULL};         // NFC signal and its FFT
+    char data[] = {77, 22, 0};
+    // char* data = "Hello, World!";
+    scatter_t signals[8];                        // NFC signal and its FFT
 
-    //========== Generate NFC signal
-    if (nfc_createSignal(
-        data,                                    // Data to encode
-        strlen(data),                            // Size of the data
-        106000,                                  // Bit rate of the input data
-        MANCHESTER,                              // Type of encoding to apply to the data
-        OOK,                                     // Type of sub-carrier modulation
-        SUB_CARRIER_FREQ,                        // Frequency of the sub-carrier (Hz)
-        CARRIER_FREQ,                            // Frequency of the carrier (Hz)
-        50,                                      // Index of the modulation of the envelope (%)
-        0.0,                                     // Signal to noise ratio
-        981132,                                  // Duration of the simulation (ns)
-        262144,                                  // Number of points to generate
-        &signals[0]                              // Generated signal
+    //========== Generate NFC signals
+    if (!nfc_standardSignal(
+        data,
+        strlen(data),
+        NFC_A,
+        PCD,
+        BIT_RATE,
+        0,
+        NB_POINTS,
+        &signals[0]
     )) {
-        PRINT(ERR, "Failed to generate NFC signal");
-        return -1;
+        fft_Compute(signals[0], &signals[1]);
     }
-    
-    //========== Apply FFT
-    if (fft_Compute(signals[0], &signals[1])) {
-        PRINT(ERR, "Failed to apply the FFT");
-        scatter_destroy(signals[0]);
-        return -1;
+    if (!nfc_standardSignal(
+        data,
+        strlen(data),
+        NFC_A,
+        PICC,
+        BIT_RATE,
+        0,
+        NB_POINTS,
+        &signals[2]
+    )) {
+        fft_Compute(signals[2], &signals[3]);
     }
-
-    //========== Print the signal
-    // scatter_print(*signals[0], ',', NORM);
-    // scatter_print(*signals[1], ',', NORM);
+    if (!nfc_standardSignal(
+        data,
+        strlen(data),
+        NFC_B,
+        PCD,
+        BIT_RATE,
+        0,
+        NB_POINTS,
+        &signals[4]
+    )) {
+        fft_Compute(signals[4], &signals[5]);
+    }
+    if (!nfc_standardSignal(
+        data,
+        strlen(data),
+        NFC_B,
+        PICC,
+        BIT_RATE,
+        0,
+        NB_POINTS,
+        &signals[6]
+    )) {
+        fft_Compute(signals[6], &signals[7]);
+    }
 
     //========== Export the signals
     scatter_setName(signals[0], "Time (ns)", "Amplitude");
     scatter_setName(signals[1], "Frequency (Hz)", "Amplitude");
-    if (writeCSV(signals, 2, "..\\res\\signals.csv")) {
+    scatter_setName(signals[2], "Time (ns)", "Amplitude");
+    scatter_setName(signals[3], "Frequency (Hz)", "Amplitude");
+    scatter_setName(signals[4], "Time (ns)", "Amplitude");
+    scatter_setName(signals[5], "Frequency (Hz)", "Amplitude");
+    scatter_setName(signals[6], "Time (ns)", "Amplitude");
+    scatter_setName(signals[7], "Frequency (Hz)", "Amplitude");
+    if (writeCSV(signals, 8, "..\\res\\signals.csv")) {
         PRINT(ERR, "Failed to export the signal");
         scatter_destroy(signals[0]);
         scatter_destroy(signals[1]);
+        scatter_destroy(signals[2]);
+        scatter_destroy(signals[3]);
+        scatter_destroy(signals[4]);
+        scatter_destroy(signals[5]);
+        scatter_destroy(signals[6]);
+        scatter_destroy(signals[7]);
         return -1;
     }
 
     //========== Free memory
     scatter_destroy(signals[0]);
     scatter_destroy(signals[1]);
-    
+    scatter_destroy(signals[2]);
+    scatter_destroy(signals[3]);
+    scatter_destroy(signals[4]);
+    scatter_destroy(signals[5]);
+    scatter_destroy(signals[6]);
+    scatter_destroy(signals[7]);
+
     return 0;
 }

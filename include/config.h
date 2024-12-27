@@ -26,14 +26,14 @@
 #define _USE_MATH_DEFINES
 
 /**
- * Duration of the simulation in ms
+ * Bit rate of the NFC communication
  */
-#define SIM_DURATION 1000
+#define BIT_RATE 424000
 
 /**
  * Number of points during the simulation
  */
-#define NB_POINTS 1000
+#define NB_POINTS 16384
 
 /**
  * Carrier frequency of the NFC communication
