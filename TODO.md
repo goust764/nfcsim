@@ -9,4 +9,4 @@
     - [ ] ~Add a function to print the signal parameters~
 - [ ] Add some compressed types (like uint8_t, uint16_t, etc.)
 - [ ] Improve noise generation
-- [ ] Add a low-pass on the envelope to make it more realistic
+- [x] Add a low-pass on the envelope to make it more realistic

@@ -115,7 +115,6 @@ int nfc_modulateSubCarrier(char* encodeData, size_t encodedSize, nfc_sigParam_t*
 //========== Signal envelope generation
 /**
  * @brief Create an envelope for the modulated data.
- *        TODO : Add a low-pass on the envelope to make it more realistic ?
  * 
  * @param subModulatedData Data with the sub-carrier modulation
  * @param subModulatedSize Size of the input data

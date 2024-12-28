@@ -65,10 +65,6 @@ int nfc_encodeData(
     }
 
     //========== Encode data
-            for (int i = 0; i < *encodedSize; i=i+1) {
-                // PRINT(DBG, "Encoded data: [%d]", i);
-                (*encodedData)[i] = 69;
-            }
     switch (encodingType) {
         //----- Modified miller encoding
         case MOD_MILLER:
@@ -320,6 +316,7 @@ int nfc_createEnvelope(
     nfc_subModulation_t subModulation = sigParam->subModulation;
     unsigned int bitRate              = sigParam->bitRate;
     unsigned int subCarrierFreq       = sigParam->subCarrierFreq;
+    unsigned int carrierFreq          = sigParam->carrierFreq;
     unsigned char modulationIndex     = sigParam->modulationIndex;
     unsigned int simDuration          = sigParam->simDuration;
     unsigned int numberOfPoints       = sigParam->numberOfPoints;
@@ -328,7 +325,8 @@ int nfc_createEnvelope(
                                                  // amplitude of the signal is 1
     unsigned int symboleDuration;                // Duration of a symbol in ns 
                                                  // from the subModulatedData
-    unsigned long long time;                     // Time of the current point in ns
+    unsigned int transTime;                      // Time of the transition between two states in points
+    unsigned int avgCounter;                     // Counter to calculate the local average of the envelope
 
     //========== Check arguments
     if (!subModulatedData || !subModulatedSize) {
@@ -380,6 +378,10 @@ int nfc_createEnvelope(
     else
         symboleDuration = (unsigned int)1e9 / subCarrierFreq;
     PRINT(INFO, "Duration of a symbol: %d ns", symboleDuration);
+    
+    //----- Calculate the transition time (2 carrier periods)
+    transTime = (unsigned int)(2*1e9) / carrierFreq * numberOfPoints / simDuration;
+    PRINT(INFO, "Transition time: %d ns", transTime);
 
     //----- Calculate the modulation depth
     modulationDepth = (double)(100 - modulationIndex) / (double)(modulationIndex + 100);
@@ -387,15 +389,22 @@ int nfc_createEnvelope(
 
     //----- Generate the envelope
     for (unsigned int i = 0; i < numberOfPoints; i=i+1) {
-        time =  (unsigned long long)i * 
-                (unsigned long long)simDuration / 
-                numberOfPoints;
-        (*envelope)->points[i].x =  (int)time;
-        (*envelope)->points[i].y =  subModulatedData[time/symboleDuration] ?
-                                    1 :
-                                    modulationDepth;
+        (*envelope)->points[i].x =    (int)((unsigned long long)i * 
+                                            (unsigned long long)simDuration / 
+                                            numberOfPoints);
+        (*envelope)->points[i].y = 0;
+        avgCounter = 0;
+        for (int j = (int)i-(int)transTime+1; j <= (int)i; j=j+1) {
+            if (j >= 0 && j < (int)numberOfPoints) {
+                if (subModulatedData[(unsigned int)scatter_getX(*envelope, (size_t)j)/symboleDuration])
+                    (*envelope)->points[i].y = (*envelope)->points[i].y + 1;
+                else
+                    (*envelope)->points[i].y = (*envelope)->points[i].y + modulationDepth;
+                avgCounter = avgCounter + 1;
+            }
+        }
+        (*envelope)->points[i].y = (*envelope)->points[i].y / (double)avgCounter;
     }
-
     return 0;
 }
 
