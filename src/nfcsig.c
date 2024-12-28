@@ -326,6 +326,7 @@ int nfc_createEnvelope(
                                                  // from the subModulatedData
     unsigned int transTime;                      // Time of the transition between two states in points
     unsigned int avgCounter;                     // Counter to calculate the local average of the envelope
+    size_t       subModDataAddr;                 // Address of the index of sub-modulated data
 
     //========== Check arguments
     if (!subModulatedData || !subModulatedSize) {
@@ -395,7 +396,13 @@ int nfc_createEnvelope(
         avgCounter = 0;
         for (int j = (int)i-(int)transTime+1; j <= (int)i; j=j+1) {
             if (j >= 0 && j < (int)numberOfPoints) {
-                if (subModulatedData[(unsigned int)scatter_getX(*envelope, (size_t)j)/symboleDuration])
+                subModDataAddr = (size_t)scatter_getX(*envelope, (size_t)j)/symboleDuration;
+                if (subModulatedData[
+                    // Required to avoid overflow when having rounding errors
+                    subModDataAddr >= subModulatedSize ?
+                        subModulatedSize-1 :
+                        subModDataAddr
+                ])
                     (*envelope)->points[i].y = (*envelope)->points[i].y + 1;
                 else
                     (*envelope)->points[i].y = (*envelope)->points[i].y + modulationDepth;
