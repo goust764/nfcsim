@@ -12,7 +12,6 @@
 #ifndef CSV_H
 #define CSV_H
 
-#include "config.h"
 #include "scatter.h"
 
 #define CSV_SEPARATOR ','

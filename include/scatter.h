@@ -12,8 +12,8 @@
 #ifndef SCATTER_H
 #define SCATTER_H
 
-#include <stdlib.h>
 #include "logging.h"
+#include <stdlib.h>
 
 //========== Structures
 /**

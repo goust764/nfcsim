@@ -12,6 +12,10 @@
 #ifndef NFCSIM_H
 #define NFCSIM_H
 
-
+#include "config.h"
+#include "logging.h"
+#include "nfcsig.h"
+#include "FFT.h"
+#include "CSV.h"
 
 #endif // NFCSIM_H

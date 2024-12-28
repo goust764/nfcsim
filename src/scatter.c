@@ -9,10 +9,9 @@
  * 
  */
 
-#include <stdlib.h>
 #include "scatter.h"
-#include "config.h"
 #include "logging.h"
+#include <stdlib.h>
 
 int scatter_create(scatter_t* scatter, size_t size) {
     *scatter = malloc(sizeof(**scatter));

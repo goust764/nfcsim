@@ -9,12 +9,11 @@
  * 
  */
 
-#include "config.h"
+#include "FFT.h"
+#include "logging.h"
 #include <stdlib.h>
 #include <math.h>
 #include <complex.h>
-#include "FFT.h"
-#include "logging.h"
 
 double fft_getAvgSamplingRate(scatter_t timeSerie) {
     //========== Variables declaration

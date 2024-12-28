@@ -12,6 +12,7 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
+#include "config.h"
 #include <stdio.h>
 
 //========== Rescourses related to colors and styles
@@ -53,7 +54,10 @@
  *  
  */
 
-#define VERBOSITY 5
+#ifndef VERBOSITY
+    #warning "No verbosity level defined, using default value"
+    #define VERBOSITY 3
+#endif
 
 #ifdef HEADLESS
     #define PRINT(level, format, ...) ((void)0)
@@ -63,12 +67,12 @@
 
 //========== Rescourses related to the print type
 typedef enum {
-    NORM,
-    ERR,
-    WARN,
-    SUCC,
-    INFO,
-    DBG,
+    NORM,                                        // 0 - Normal message
+    ERR,                                         // 1 - Error message
+    WARN,                                        // 2 - Warning message
+    SUCC,                                        // 3 - Success message
+    INFO,                                        // 4 - Information message
+    DBG                                          // 5 - Debug message
 } print_type_t;
 
 /**

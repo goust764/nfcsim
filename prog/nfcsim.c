@@ -10,11 +10,6 @@
  */
 
 #include "nfcsim.h"
-#include "config.h"
-#include "logging.h"
-#include "nfcsig.h"
-#include "FFT.h"
-#include "CSV.h"
 #include <string.h>
 
 /**

@@ -12,8 +12,8 @@
 #ifndef NFCSIG_H
 #define NFCSIG_H
 
-#include <stdlib.h>
 #include "scatter.h"
+#include <stdlib.h>
 
 //========== Structures declarations
 /**

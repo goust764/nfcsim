@@ -9,10 +9,9 @@
  * 
  */
 
-#include <stdio.h>
 #include "CSV.h"
-#include "config.h"
 #include "logging.h"
+#include <stdio.h>
 
 int writeCSV(scatter_t* scatters, size_t nbScatters, char* filename) {
     PRINT(INFO, "Writing %ld cloud(s) of points to file \"%s\"", nbScatters, filename);

@@ -9,7 +9,6 @@
  * 
  */
 
-#include "config.h"
 #include "nfcsig.h"
 #include "logging.h"
 #include <stdlib.h>
@@ -492,19 +491,19 @@ int nfc_createSignal(
     /* Inch no need, already done in sub-functions */
 
     //========== Printing parameters
-    PRINT(INFO, "===== NFC SIGNAL GENERATION PARAMETERS =====");
-    PRINT(INFO, "Data:                   %s",       sigParam->data);
-    PRINT(INFO, "Size:                   %ld",      sigParam->dataSize);
-    PRINT(INFO, "Bit rate:               %d bit/s", sigParam->bitRate);
-    PRINT(INFO, "Encoding type:          %d",       sigParam->encodingType);
-    PRINT(INFO, "Sub-carrier modulation: %d",       sigParam->subModulation);
-    PRINT(INFO, "Sub-carrier frequency:  %d Hz",    sigParam->subCarrierFreq);
-    PRINT(INFO, "Carrier frequency:      %d Hz",    sigParam->carrierFreq);
-    PRINT(INFO, "Modulation index:       %d%%",     sigParam->modulationIndex);
-    PRINT(INFO, "Noise level:            %f",       sigParam->noiseLevel);
-    PRINT(INFO, "Simulation duration:    %d ms",    sigParam->simDuration);
-    PRINT(INFO, "Number of points:       %d",       sigParam->numberOfPoints);
-    PRINT(INFO, "============================================");
+    PRINT(NORM, "===== NFC SIGNAL GENERATION PARAMETERS =====");
+    PRINT(NORM, "Data:                   %s",       sigParam->data);
+    PRINT(NORM, "Size:                   %ld",      sigParam->dataSize);
+    PRINT(NORM, "Bit rate:               %d bit/s", sigParam->bitRate);
+    PRINT(NORM, "Encoding type:          %d",       sigParam->encodingType);
+    PRINT(NORM, "Sub-carrier modulation: %d",       sigParam->subModulation);
+    PRINT(NORM, "Sub-carrier frequency:  %d Hz",    sigParam->subCarrierFreq);
+    PRINT(NORM, "Carrier frequency:      %d Hz",    sigParam->carrierFreq);
+    PRINT(NORM, "Modulation index:       %d%%",     sigParam->modulationIndex);
+    PRINT(NORM, "Noise level:            %f",       sigParam->noiseLevel);
+    PRINT(NORM, "Simulation duration:    %d ms",    sigParam->simDuration);
+    PRINT(NORM, "Number of points:       %d",       sigParam->numberOfPoints);
+    PRINT(NORM, "============================================");
 
     // PRINT(DBG, "===== INPUT DATA =====");
     // for (int i = 0; (size_t)i < size; i=i+1)

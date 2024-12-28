@@ -19,6 +19,18 @@
  */
 // #define HEADLESS
 
+/**
+ * Verbosity level of the program
+ * 0: Normal messages
+ * 1: Normal and  error messages
+ * 2: Normal, error and warning messages
+ * 3: Normal, error, warning and success messages
+ * 4: Normal, error, warning, success and info messages
+ * 5: Normal, error, warning, success, info and debug messages
+ *  
+ */
+#define VERBOSITY 5
+
 //----- Simulation parameters
 /**
  * Use the M_PI constant from the math library

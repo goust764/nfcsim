@@ -12,7 +12,6 @@
 #ifndef FFT_H
 #define FFT_H
 
-#include "config.h"
 #include "scatter.h"
 
 /**
