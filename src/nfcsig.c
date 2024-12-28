@@ -107,7 +107,7 @@ int nfc_encodeData(
                         }
                         // Bit at 0 after a 0
                         else {
-                            (*encodedData)[32*i+4*j  ] = 0x01;
+                            (*encodedData)[32*i+4*j  ] = 0x00;
                             (*encodedData)[32*i+4*j+1] = 0x01;
                             (*encodedData)[32*i+4*j+2] = 0x01;
                             (*encodedData)[32*i+4*j+3] = 0x01;
@@ -200,7 +200,7 @@ int nfc_modulateSubCarrier(
     }
     //----- Check sub-carrier modulation type
     if (subModulation != NONE && 
-        subModulation != OOK && 
+        subModulation != OOK  && 
         subModulation != BPSK) {
         PRINT(ERR, "Invalid sub-carrier modulation type");
         return -1;
@@ -373,10 +373,10 @@ int nfc_createEnvelope(
     //----- Calculate the duration of a symbol
     // If there is no sub-carrier modulation, the duration of a symbol is the bit rate
     if (subModulation == NONE)
-        symboleDuration = (unsigned int)1e9 / bitRate;
+        symboleDuration = (unsigned int)1e9 / bitRate / 4;
     // Otherwise, the duration of a symbol is the sub-carrier frequency
     else
-        symboleDuration = (unsigned int)1e9 / subCarrierFreq;
+        symboleDuration = (unsigned int)1e9 / subCarrierFreq / 2;
     PRINT(INFO, "Duration of a symbol: %d ns", symboleDuration);
     
     //----- Calculate the transition time (2 carrier periods)
@@ -521,8 +521,8 @@ int nfc_createSignal(
     }
 
     // PRINT(DBG, "===== ENCODED DATA =====");
-    // for (int i = 0; (size_t)i < encodedSize; i=i+1)
-    //     PRINT(DBG, "Encoded data: [%d]\t%d", i, encodedData[i]);
+    // for (int i = 0; (size_t)i < encodedSize-3; i=i+4)
+    //     PRINT(DBG, "Encoded data: [%d->%d]\t%d %d %d %d", i, i+3, encodedData[i], encodedData[i+1], encodedData[i+2], encodedData[i+3]);
 
     //========== Sub-carrier modulation
     PRINT(INFO, "Modulating data with sub-carrier");

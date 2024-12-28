@@ -26,14 +26,14 @@
  */
 int main(/*int argc, char *argv[]*/) {
     //========== Variable declaration
-    char data[] = {77, 22, 0};
+    char data[] = {18, 13, 0};
     // char* data = "Hello, World!";
     scatter_t signals[8];                        // NFC signal and its FFT
 
     //========== Generate NFC signals
     if (!nfc_standardSignal(
         data,
-        strlen(data),
+        1,
         NFC_A,
         PCD,
         BIT_RATE,
@@ -42,10 +42,12 @@ int main(/*int argc, char *argv[]*/) {
         &signals[0]
     )) {
         fft_Compute(signals[0], &signals[1]);
+        scatter_setName(signals[0], "Time (ns)", "NFC-A PCD");
+        scatter_setName(signals[1], "Frequency (Hz)", "FFT NFC-A PCD");
     }
     if (!nfc_standardSignal(
-        data,
-        strlen(data),
+        data+1,
+        1,
         NFC_A,
         PICC,
         BIT_RATE,
@@ -54,10 +56,12 @@ int main(/*int argc, char *argv[]*/) {
         &signals[2]
     )) {
         fft_Compute(signals[2], &signals[3]);
+        scatter_setName(signals[2], "Time (ns)", "NFC-A PICC");
+        scatter_setName(signals[3], "Frequency (Hz)", "FFT NFC-A PICC");
     }
     if (!nfc_standardSignal(
         data,
-        strlen(data),
+        1,
         NFC_B,
         PCD,
         BIT_RATE,
@@ -66,10 +70,12 @@ int main(/*int argc, char *argv[]*/) {
         &signals[4]
     )) {
         fft_Compute(signals[4], &signals[5]);
+        scatter_setName(signals[4], "Time (ns)", "NFC-B PCD");
+        scatter_setName(signals[5], "Frequency (Hz)", "FFT NFC-B PCD");
     }
     if (!nfc_standardSignal(
-        data,
-        strlen(data),
+        data+1,
+        1,
         NFC_B,
         PICC,
         BIT_RATE,
@@ -78,17 +84,11 @@ int main(/*int argc, char *argv[]*/) {
         &signals[6]
     )) {
         fft_Compute(signals[6], &signals[7]);
+        scatter_setName(signals[6], "Time (ns)", "NFC-B PICC");
+        scatter_setName(signals[7], "Frequency (Hz)", "FFT NFC-B PICC");
     }
 
     //========== Export the signals
-    scatter_setName(signals[0], "Time (ns)", "Amplitude");
-    scatter_setName(signals[1], "Frequency (Hz)", "Amplitude");
-    scatter_setName(signals[2], "Time (ns)", "Amplitude");
-    scatter_setName(signals[3], "Frequency (Hz)", "Amplitude");
-    scatter_setName(signals[4], "Time (ns)", "Amplitude");
-    scatter_setName(signals[5], "Frequency (Hz)", "Amplitude");
-    scatter_setName(signals[6], "Time (ns)", "Amplitude");
-    scatter_setName(signals[7], "Frequency (Hz)", "Amplitude");
     if (writeCSV(signals, 8, "..\\res\\signals.csv")) {
         PRINT(ERR, "Failed to export the signal");
         scatter_destroy(signals[0]);

@@ -28,7 +28,8 @@
 /**
  * Bit rate of the NFC communication
  */
-#define BIT_RATE 424000
+#define BIT_RATE 106000
+// #define BIT_RATE 424000
 
 /**
  * Number of points during the simulation
