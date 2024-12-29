@@ -11,6 +11,7 @@
 
 #include "nfcsig.h"
 #include "logging.h"
+#include "assert.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -20,10 +21,7 @@ int nfc_autoSimTime(nfc_sigParam_t* sigParam) {
     size_t size          = sigParam->dataSize;
 
     //========== Check arguments
-    if (bitRate == 0) {
-        PRINT(ERR, "Bit rate cannot be null");
-        return -1;
-    }
+    assert(bitRate != 0, "Bit rate cannot be null", -1);
 
     //========== Calculate the simulation time
     sigParam->simDuration = (unsigned int)((size * 8 * (unsigned long long)1e9) / (unsigned long long)bitRate);
@@ -43,25 +41,22 @@ int nfc_encodeData(
 
     //========== Check arguments
     //----- Check input data
-    if (!data || !size) {
-        PRINT(ERR, "Input data cannot be NULL or empty");
-        return -1;
-    }
+    assert(data, "Input data cannot be NULL", -1);
+    assert(size, "Input data size cannot be null", -1);
+
     //----- Check encoding type
-    if (encodingType != MOD_MILLER && 
-        encodingType != NRZ && 
-        encodingType != MANCHESTER) {
-        PRINT(ERR, "Invalid encoding type");
-        return -1;
-    }
+    assert(
+        encodingType == MOD_MILLER ||
+        encodingType == NRZ ||
+        encodingType == MANCHESTER,
+        "Invalid encoding type",
+        -1
+    );
 
     //========== Allocate memory for the encoded data
     *encodedSize = 8 * 4 * size;
     *encodedData = (char*)malloc(*encodedSize);
-    if (!(*encodedData)) {
-        PRINT(ERR, "Failed to allocate memory for the encoded data");
-        return -1;
-    }
+    assert(*encodedData, "Failed to allocate memory for the encoded data", -1);
 
     //========== Encode data
     switch (encodingType) {
@@ -193,29 +188,24 @@ int nfc_modulateSubCarrier(
 
     //========== Check arguments
     //----- Check input data
-    if (!encodeData || !encodedSize) {
-        PRINT(ERR, "Encoded data cannot be NULL or empty");
-        return -1;
-    }
+    assert(encodeData, "Encoded data cannot be NULL", -1);
+    assert(encodedSize, "Encoded data size cannot be null", -1);
+
     //----- Check sub-carrier modulation type
-    if (subModulation != NONE && 
-        subModulation != OOK  && 
-        subModulation != BPSK) {
-        PRINT(ERR, "Invalid sub-carrier modulation type");
-        return -1;
-    }
+    assert(
+        subModulation == NONE ||
+        subModulation == OOK  ||
+        subModulation == BPSK,
+        "Invalid sub-carrier modulation type",
+        -1
+    );
+
     //----- Check bit rate
-    if (bitRate == 0) {
-        PRINT(ERR, "Bit rate cannot be null");
-        return -1;
-    }
+    assert(bitRate != 0, "Bit rate cannot be null", -1);
+
     //----- Check sub-carrier frequency
-    if (subCarrierFreq == 0 && subModulation != NONE) {
-        PRINT(ERR, "Sub-carrier frequency cannot be null with a sub-carrier modulation different from NONE");
-        return -1;
-    }
-    if (subCarrierFreq % bitRate != 0)
-        PRINT(WARN, "Sub-carrier frequency should be a multiple of the bit rate");
+    assert(subCarrierFreq || subModulation == NONE, "Sub-carrier frequency cannot be null", -1);
+    assert(!(subCarrierFreq % bitRate), "Sub-carrier frequency should be a multiple of the bit rate", -1);
 
     //========== Allocate memory for the modulated data
     if (subModulation != NONE)
@@ -228,11 +218,7 @@ int nfc_modulateSubCarrier(
     // PRINT(DBG, "subModulatedSize: %ld", *subModulatedSize);
 
     *subModulatedData = (char*)malloc(*subModulatedSize);
-
-    if (!(*subModulatedData)) {
-        PRINT(ERR, "Failed to allocate memory for the modulated data");
-        return -1;
-    }
+    assert(*subModulatedData, "Failed to allocate memory for the modulated data", -1);
 
     //========== Modulate data
     switch (subModulation) {
@@ -297,8 +283,7 @@ int nfc_modulateSubCarrier(
         
         //----- Default case
         default:
-            PRINT(ERR, "Invalid sub-carrier modulation type");
-            return -1;
+            assert(0, "Invalid sub-carrier modulation type", -1);
         break;
     }
 
@@ -329,45 +314,37 @@ int nfc_createEnvelope(
     size_t       subModDataAddr;                 // Address of the index of sub-modulated data
 
     //========== Check arguments
-    if (!subModulatedData || !subModulatedSize) {
-        PRINT(ERR, "Sub-modulated data cannot be NULL or empty");
-        return -1;
-    }
+    assert(subModulatedData, "Sub-modulated data cannot be NULL", -1);
+    assert(subModulatedSize, "Sub-modulated data size cannot be null", -1);
+
     //----- Check sub-carrier modulation type
-    if (subModulation != NONE && 
-        subModulation != OOK && 
-        subModulation != BPSK) {
-        PRINT(ERR, "Invalid sub-carrier modulation type");
-        return -1;
-    }
+    assert(
+        subModulation == NONE ||
+        subModulation == OOK  ||
+        subModulation == BPSK,
+        "Invalid sub-carrier modulation type",
+        -1
+    );
+
     //----- Check bit rate
-    if (bitRate == 0) {
-        PRINT(ERR, "Bit rate cannot be null");
-        return -1;
-    }
+    assert(bitRate, "Bit rate cannot be null", -1);
+
     //----- Check sub-carrier frequency
-    if (subCarrierFreq == 0 && subModulation != NONE) {
-        PRINT(ERR, "Sub-carrier frequency cannot be null with a sub-carrier modulation different from NONE");
-        return -1;
-    }
-    if (subCarrierFreq % bitRate != 0)
-        PRINT(WARN, "Sub-carrier frequency should be a multiple of the bit rate");
+    assert(subCarrierFreq || subModulation == NONE, "Sub-carrier frequency cannot be null", -1);
+    assert(!(subCarrierFreq % bitRate), "Sub-carrier frequency should be a multiple of the bit rate", -1);
+
     //----- Check modulation index
-    if (modulationIndex > 100) {
-        PRINT(ERR, "Modulation index cannot be greater than 100");
-        return -1;
-    }
+    assert(modulationIndex <= 100, "Modulation index cannot be greater than 100", -1);
+
     //----- Check simulation duration
-    if (simDuration == 0) {
-        PRINT(ERR, "Simulation duration cannot be null");
-        return -1;
-    }
+    assert(simDuration, "Simulation duration cannot be null", -1);
 
     //========== Allocate memory for the envelope
-    if (scatter_create(envelope, numberOfPoints)) {
-        PRINT(ERR, "Failed to allocate memory for the envelope");
-        return -1;
-    }
+    assert(
+        !scatter_create(envelope, numberOfPoints),
+        "Failed to allocate memory for the envelope",
+        -1
+    );
 
     //========== Generate envelope
     //----- Calculate the duration of a symbol
@@ -415,7 +392,7 @@ int nfc_createEnvelope(
 }
 
 int nfc_modulate(
-    scatter_t enveloppe,
+    scatter_t envelope,
     nfc_sigParam_t* sigParam,
     scatter_t* modulatedSignal
 ) {
@@ -423,26 +400,29 @@ int nfc_modulate(
     unsigned int carrierFreq = sigParam->carrierFreq;
 
     //========== Check arguments
-    if (!enveloppe->points || !enveloppe->size) {
+    if (!envelope->points || !envelope->size) {
         PRINT(ERR, "Enveloppe cannot be NULL or empty");
         return -1;
     }
-
+    assert(envelope->points, "Envelope cannot be NULL", -1);
+    assert(envelope->size, "Envelope size cannot be null", -1);
+    
     //========== Allocate memory for the modulated signal
-    if (scatter_create(modulatedSignal, enveloppe->size)) {
-        PRINT(ERR, "Failed to allocate memory for the modulated signal");
-        return -1;
-    }
+    assert(
+        !scatter_create(modulatedSignal, envelope->size),
+        "Failed to allocate memory for the modulated signal",
+        -1
+    );
 
     //========== Modulate signal
     for (int i = 0; (size_t)i < (*modulatedSignal)->size; i=i+1) {
-        (*modulatedSignal)->points[i].x =   enveloppe->points[i].x;
-        (*modulatedSignal)->points[i].y =   enveloppe->points[i].y * 
+        (*modulatedSignal)->points[i].x =   envelope->points[i].x;
+        (*modulatedSignal)->points[i].y =   envelope->points[i].y * 
                                             sin(
                                                 (double)2 *
                                                 (double)M_PI *
                                                 (double)carrierFreq *
-                                                (double)(enveloppe->points[i].x) / (double)1e9
+                                                (double)(envelope->points[i].x) / (double)1e9
                                             );
     }
 
@@ -458,14 +438,13 @@ int nfc_addNoise(
     double noiseLevel = sigParam->noiseLevel;
 
     //========== Check arguments
-    if (!signal->points || !signal->size) {
-        PRINT(ERR, "Signal cannot be NULL or empty");
-        return -1;
-    }
-    if (noiseLevel < 0 || noiseLevel > 1) {
-        PRINT(ERR, "Noise level should be between 0 and 1");
-        return -1;
-    }
+    assert(signal->points, "Signal cannot be NULL", -1);
+    assert(signal->size, "Signal size cannot be null", -1);
+    assert(
+        noiseLevel >= 0 && noiseLevel <= 1,
+        "Noise level should be between 0 and 1",
+        -1
+    );
 
     //========== Allocate memory for the noisy signal
     if (scatter_create(noisySignal, signal->size)) {
@@ -627,14 +606,8 @@ int nfc_standardSignal(
     nfc_sigParam_t sigParam;                     // Parameters of the signal
 
     //========== Check arguments
-    if (standard != NFC_A && standard != NFC_B) {
-        PRINT(ERR, "Invalid NFC standard");
-        return -1;
-    }
-    if (dataTransm != PCD && dataTransm != PICC) {
-        PRINT(ERR, "Invalid data transmission mode");
-        return -1;
-    }
+    assert(standard == NFC_A || standard == NFC_B, "Invalid NFC standard", -1);
+    assert(dataTransm == PCD || dataTransm == PICC, "Invalid data transmission mode", -1);
     if (bitRate < 106000 || bitRate > 424000)
         PRINT(
             WARN,
@@ -675,8 +648,7 @@ int nfc_standardSignal(
 
                 //----- Default case
                 default:
-                    PRINT(ERR, "Invalid data transmission mode");
-                    return -1;
+                    assert(0, "Invalid data transmission mode", -1);
                 break;
             }
         break;
@@ -705,23 +677,24 @@ int nfc_standardSignal(
 
                 //----- Default case
                 default:
-                    PRINT(ERR, "Invalid data transmission mode");
-                    return -1;
+                    assert(0, "Invalid data transmission mode", -1);
                 break;
             }
         break;
     }
 
-    nfc_autoSimTime(&sigParam);
+    assert(
+        !nfc_autoSimTime(&sigParam),
+        "Failed to automatically calculate the simulation time",
+        -1
+    );
 
     //========== Generate signal
-    if (nfc_createSignal(
-        &sigParam,
-        signal
-    )) {
-        PRINT(ERR, "Failed to generate signal");
-        return -1;
-    }
+    assert(
+        !nfc_createSignal(&sigParam, signal),
+        "Failed to generate signal",
+        -1
+    );
 
     return 0;
 }

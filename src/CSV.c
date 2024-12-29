@@ -11,6 +11,7 @@
 
 #include "CSV.h"
 #include "logging.h"
+#include "assert.h"
 #include <stdio.h>
 
 int writeCSV(scatter_t* scatters, size_t nbScatters, char* filename) {
@@ -21,22 +22,13 @@ int writeCSV(scatter_t* scatters, size_t nbScatters, char* filename) {
     size_t nbLines;                              // Number of lines in the file
 
     //========== Check arguments
-    if (!(*scatters)) {
-        PRINT(ERR, "*scatters cannot be NULL");
-        return -1;
-    }
-    if (filename == NULL || filename[0] == '\0') {
-        PRINT(ERR, "Filename cannot be NULL or empty");
-        return -1;
-    }
+    assert(scatters, "Scatters cannot be NULL", -1);
+    assert(filename && filename[0], "Filename cannot be NULL or empty", -1);
 
     //========== Initializing variables
     //----- Opening the file
     file = fopen(filename, "w");
-    if (!file) {
-        PRINT(ERR, "Cannot open file %s", filename);
-        return -1;
-    }
+    assert(file, "Cannot open file %s", -1);
 
     //----- Initializing the number of lines
     nbLines = 0;

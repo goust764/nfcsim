@@ -11,15 +11,12 @@
 
 #include "scatter.h"
 #include "logging.h"
+#include "assert.h"
 #include <stdlib.h>
 
 int scatter_create(scatter_t* scatter, size_t size) {
     *scatter = malloc(sizeof(**scatter));
-
-    if (!(*scatter)) {
-        PRINT(ERR, "Cannot allocate memory for scatter of size %ld", size);
-        return -1;
-    }
+    assert(*scatter, "Failed to allocate memory for the scatter", -1);
 
     (*scatter)->size = size;
     (*scatter)->xName = NULL;
@@ -36,10 +33,7 @@ int scatter_create(scatter_t* scatter, size_t size) {
 }
 
 int scatter_setName(scatter_t scatter, char* xName, char* yName) {
-    if (!scatter) {
-        PRINT(ERR, "Scatter cannot be NULL");
-        return -1;
-    }
+    assert(scatter, "Scatter cannot be NULL", -1);
 
     scatter->xName = xName;
     scatter->yName = yName;

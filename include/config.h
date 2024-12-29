@@ -31,6 +31,11 @@
  */
 #define VERBOSITY 5
 
+/**
+ * Remove all assert calls
+ */
+// #define NO_ASSERT
+
 //----- Simulation parameters
 /**
  * Use the M_PI constant from the math library

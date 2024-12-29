@@ -11,6 +11,7 @@
 
 #include "FFT.h"
 #include "logging.h"
+#include "assert.h"
 #include <stdlib.h>
 #include <math.h>
 #include <complex.h>
@@ -20,10 +21,8 @@ double fft_getAvgSamplingRate(scatter_t timeSerie) {
     double avgSamplingRate = 0;
 
     //========== Check arguments
-    if (!timeSerie->points) {
-        PRINT(ERR, "Time serie cannot be NULL");
-        return -1;
-    }
+    assert(timeSerie->points, "Time serie cannot be NULL", -1);
+    assert(timeSerie->size, "Time serie size cannot be null", -1);
 
     //========== Calculate the average sampling rate
     for (size_t i = 1; i < timeSerie->size; i=i+1) {
@@ -49,27 +48,24 @@ int fft_Iterative(scatter_t in, scatter_t out) {
     complex double* X;
 
     //========== Check variables
-    if (!in->points || !in->size) {
-        PRINT(ERR, "Input cloud of points cannot be NULL or empty");
-        return -1;
-    }
-    if (!out) {
-        PRINT(ERR, "Output cloud of points cannot be NULL");
-        return -1;
-    }
-    if (!(out->points) || !(out->size)) {
-        PRINT(ERR, "Output cloud of points should be initialized");
-        return -1;
-    }
+    assert(in->points, "Input cloud of points cannot be NULL", -1);
+    assert(in->size, "Input cloud of points size cannot be null", -1);
+    assert(out->points, "Output cloud of points cannot be NULL", -1);
+    assert(
+        out->points && out->size,
+        "Output cloud of points should be initialized",
+        -1
+    );
+
     // Check if the size of the output cloud is a power of 2
-    if (out->size & (out->size - 1))
-        PRINT(WARN, "Output cloud of points size should be a power of 2");
+    assert(
+        !(out->size & (out->size - 1)),
+        "Output cloud of points size should be a power of 2",
+        -1
+    );
 
     X = malloc(in->size * sizeof(complex double));
-    if (!X) {
-        PRINT(ERR, "Failed to allocate memory for the complex cloud of points");
-        return -1;
-    }
+    assert(X, "Failed to allocate memory for the complex cloud of points", -1);
 
     for (size_t i = 0; i < in->size; i=i+1)
         X[i] = scatter_getY(in, i);
@@ -118,16 +114,15 @@ int fft_Compute(scatter_t timeSerie, scatter_t* freqSerie) {
     double AvgSamplingRate;
 
     //========== Check arguments
-    if (!timeSerie->points || !timeSerie->size) {
-        PRINT(ERR, "Time serie cannot be NULL or empty");
-        return -1;
-    }
+    assert(timeSerie->points, "Time serie cannot be NULL", -1);
+    assert(timeSerie->size, "Time serie size cannot be null", -1);
 
     //========== Allocate memory for the freqSerie
-    if (scatter_create(freqSerie, timeSerie->size)) {
-        PRINT(ERR, "Failed to allocate memory for the frequency serie");
-        return -1;
-    }
+    assert(
+        !scatter_create(freqSerie, timeSerie->size),
+        "Failed to allocate memory for the frequency serie",
+        -1
+    )
 
     //========== Apply the FFT
     PRINT(INFO, "Processing the FFT");
