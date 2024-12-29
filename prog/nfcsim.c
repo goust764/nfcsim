@@ -40,7 +40,7 @@ int main(/*int argc, char *argv[]*/) {
         fft_Compute(signals[0], &signals[1]);
         scatter_setName(signals[0], "Time (ns)", "NFC-A PCD");
         scatter_setName(signals[1], "Frequency (Hz)", "FFT NFC-A PCD");
-        LCADC(signals[0], levels, 4, 0, &signals[2]);
+        LCADC(signals[0], levels, 4, 2, &signals[2]);
     }
 
     // if (!nfc_standardSignal(

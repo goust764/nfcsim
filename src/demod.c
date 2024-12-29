@@ -25,6 +25,7 @@ int LCADC(
     list_t samples;                              // Temporary list of samples
     point_t* point;                              // Temporary point
     size_t i;                                    // Index for the output signal
+    unsigned int skpCnt;                         // Counter for the skip
 
     //========== Check arguments
     assert(signal, "Signal cannot be NULL", -1);
@@ -41,6 +42,7 @@ int LCADC(
 
     //========== Initialize variables
     samples = list_new();
+    skpCnt = 0;
 
     //========== Sample the signal
     for (i = 1; i < signal->size; i=i+1) {
@@ -48,13 +50,17 @@ int LCADC(
             if ((scatter_getY(signal, i-1)-levels[j]) *
                 (scatter_getY(signal, i)-levels[j]) < 0
             ) {
-                if(point_create(&point, scatter_getX(signal, i), levels[j])) {
-                    PRINT(ERR, "Failed to create a point");
-                    list_delete(samples, point_destroy);
-                    return -1;
-                }
-                samples = list_add_last(samples, point);
-                break;
+                if (!skpCnt) {
+                    skpCnt = skip;
+                    if(point_create(&point, scatter_getX(signal, i), levels[j])) {
+                        PRINT(ERR, "Failed to create a point");
+                        list_delete(samples, point_destroy);
+                        return -1;
+                    }
+                    samples = list_add_last(samples, point);
+                    break;
+                } else
+                    skpCnt = skpCnt - 1;
             }
         }
     }
