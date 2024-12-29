@@ -13,6 +13,7 @@
 #include "logging.h"
 #include "assert.h"
 #include "list.h"
+#include <math.h>
 
 int LCADC(
     scatter_t signal,
@@ -79,3 +80,47 @@ int LCADC(
     return 0;
 }
 
+int createLUT(char** LUT, size_t LUTSize) {
+    //========== Variable declaration
+    double step;                                 // Step between two points
+    double x;                                    // Current x value
+    double y;                                    // Current y value
+
+    //========== Check arguments
+    if (!LUTSize) {
+        PRINT(WARN, "LUT size is null");
+        *LUT = NULL;
+        return 0;
+    }
+
+    //========== Allocate memory
+    *LUT = calloc(sizeof(**LUT), LUTSize);
+    assert(*LUT, "Failed to allocate memory for the LUT", -1);
+
+    //========== Create the LUT
+    step = 2*M_PI/LUTSize;
+    x = 0;
+    for (size_t i = 0; i < LUTSize; i=i+1) {
+        y = sin(x);
+        (*LUT)[i] = (char)(y*127);
+        x = x + step;
+    }
+
+    return 0;
+}
+
+char LUTSin(char* LUT, size_t LUTSize, int time, int freq) {
+    //========== Variable declaration
+    size_t index;                                // Index in the LUT
+    long long int tmp;                           // Temporary value for frequency*time
+
+    //========== Check arguments
+    assert(LUT, "LUT cannot be NULL", 0);
+    assert(LUTSize, "LUT size cannot be null", 0);
+
+    //========== Compute the index
+    tmp = (long long int)freq*(long long int)time;
+    index = LUTSize*(int)(tmp/1e9) % LUTSize;
+
+    return LUT[tmp];
+}

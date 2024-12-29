@@ -27,4 +27,25 @@
  */
 int LCADC(scatter_t signal, double* levels, unsigned int nbLevels, unsigned int skip, scatter_t* output);
 
+/**
+ * @brief Create a sin period lookup table
+ * 
+ * @param LUT Pointeur to the LUT array
+ * @param LUTSize Size of the LUT
+ * @return int - 0 if success, -1 otherwise
+ */
+int createLUT(char** LUT, size_t LUTSize);
+
+/**
+ * @brief Return the sin value of a given time, frequency and phase from the LUT
+ * 
+ * @param LUT Lookup table to read the sin value from
+ * @param LUTSize Size of the LUT
+ * @param time Time to get the sin value from
+ * @param freq Frequency of the sin wave
+ * @param phi Phase of the sin wave
+ * @return char - Sin value
+ */
+char LUTSin(char* LUT, size_t LUTSize, int time, int freq, int phi);
+
 #endif // DEMOD_H
