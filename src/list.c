@@ -4,47 +4,42 @@
  * @author François Cayre <francois.cayre@grenoble-inp.fr>
  * @date Fri Jul    2 18:07:23 2021
  * @brief Lists.
- *
+ *        Modified 29/12/2024 by OUSSET Gaël
+ * 
  * Lists.
  */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "list.h"
+#include "assert.h"
 
-// struct link_t { 
-//     void                    *content;
-//     struct link_t *next; 
-// }; 
-
-list_t list_new( void ) { 
+list_t list_new(void) { 
     return NULL; 
 }
 
-int        list_empty( list_t l ) { 
-    return list_new() == l;
+int list_empty(list_t l) { 
+    return l == list_new();
 }
 
-void*    list_first( list_t l ) { 
+void* list_first(list_t l) { 
 
-    assert( !list_empty( l ) );
+    assert(!list_empty(l), "List cannot be empty", NULL);
     
     return l->content; 
 }
 
-list_t list_next( list_t l ) { 
+list_t list_next(list_t l) { 
 
-    assert( !list_empty( l ) );
+    assert(!list_empty(l), "List cannot be empty", l);
     
     return l->next; 
 }
 
-list_t list_add_first( list_t l, void* object ) { 
-    struct link_t *new = malloc( sizeof( *new ) );
-
-    assert( new ); 
+list_t list_add_first(list_t l, void* object) { 
+    struct link_t *new = malloc(sizeof(*new));
+    assert(new, "Memory allocation failed", l); 
 
     new->content = object; 
     new->next        = l; 
@@ -57,59 +52,52 @@ list_t list_add_last(list_t l, void* object) {
         l = list_add_first(l, object);
         return l;
     }
+
     struct link_t *new = malloc(sizeof(*new));
-    assert(new);
+    assert(new, "Memory allocation failed", l);
 
     list_t first = l;
 
     for (; !list_empty(l->next); l = list_next(l)) {}
 
-    l->next = new;
+    l->next      = new;
     new->content = object;
-    new->next = list_new();
+    new->next    = list_new();
 
     return first;
 }
 
-list_t list_del_first( list_t l, action_t delete ) { 
+list_t list_del_first(list_t l, action_t delete) { 
     list_t next;
     
-    assert( !list_empty( l ) ); 
+    assert(!list_empty(l), "List cannot be empty", l); 
 
     next = l->next; 
 
-    if ( delete ) delete( l->content );
+    if (delete) delete(l->content);
     
-    free( l );
+    free(l);
     
     return next; 
 }
 
-size_t list_length( list_t l ) { 
+size_t list_length(list_t l) { 
     size_t len = 0;
     
-    for ( ; !list_empty( l ) ; l = list_next( l ), len++ );
+    for (; !list_empty(l) ; l = list_next(l), len++);
     
     return len; 
 }
 
-/*
-void list_print( list_t l ) { //on change la fonction 
-    while(l != NULL){
-        printf("%p \n", l->content);
-        l = l->next;
-}
-}*/
+int list_print(list_t l, action_t print) { 
+    int ret = printf("(%s", list_empty(l) ? "" : " ");
 
-int list_print( list_t l, action_t print ) { 
-    int ret = printf( "(%s", list_empty( l ) ? "" : " " );
-
-    for ( ; !list_empty( l ) ; l = list_next( l ) ) { 
-        ret += print( list_first( l ) );
-        ret += printf( " " );
+    for (; !list_empty(l); l = list_next(l)) { 
+        ret += print(list_first(l));
+        ret += printf(" ");
     }
     
-    ret += printf( ")" );
+    ret += printf(")");
 
     return ret; 
 }
