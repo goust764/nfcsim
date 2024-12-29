@@ -21,6 +21,7 @@ double fft_getAvgSamplingRate(scatter_t timeSerie) {
     double avgSamplingRate = 0;
 
     //========== Check arguments
+    assert(timeSerie, "Time serie cannot be NULL", -1);
     assert(timeSerie->points, "Time serie cannot be NULL", -1);
     assert(timeSerie->size, "Time serie size cannot be null", -1);
 
@@ -48,6 +49,7 @@ int fft_Iterative(scatter_t in, scatter_t out) {
     complex double* X;
 
     //========== Check variables
+    assert(in, "Input cloud of points cannot be NULL", -1);
     assert(in->points, "Input cloud of points cannot be NULL", -1);
     assert(in->size, "Input cloud of points size cannot be null", -1);
     assert(out->points, "Output cloud of points cannot be NULL", -1);
@@ -114,6 +116,7 @@ int fft_Compute(scatter_t timeSerie, scatter_t* freqSerie) {
     double AvgSamplingRate;
 
     //========== Check arguments
+    assert(timeSerie, "Time serie cannot be NULL", -1);
     assert(timeSerie->points, "Time serie cannot be NULL", -1);
     assert(timeSerie->size, "Time serie size cannot be null", -1);
 

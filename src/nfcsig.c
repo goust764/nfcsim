@@ -400,6 +400,7 @@ int nfc_modulate(
     unsigned int carrierFreq = sigParam->carrierFreq;
 
     //========== Check arguments
+    assert(envelope, "Envelope cannot be NULL", -1);
     if (!envelope->points || !envelope->size) {
         PRINT(ERR, "Enveloppe cannot be NULL or empty");
         return -1;
@@ -438,6 +439,7 @@ int nfc_addNoise(
     double noiseLevel = sigParam->noiseLevel;
 
     //========== Check arguments
+    assert(signal, "Signal cannot be NULL", -1);
     assert(signal->points, "Signal cannot be NULL", -1);
     assert(signal->size, "Signal size cannot be null", -1);
     assert(
