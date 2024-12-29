@@ -17,5 +17,6 @@
 #include "nfcsig.h"
 #include "FFT.h"
 #include "CSV.h"
+#include "demod.h"
 
 #endif // NFCSIM_H
