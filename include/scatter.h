@@ -36,7 +36,7 @@ typedef struct cloudPoint {
     char*    yName;                              // Name of the Y axis
 } *scatter_t;
 
-//========== Functions
+//========== Functions for scatter_t
 /**
  * @brief Create a cloud of points
  * 
@@ -118,5 +118,24 @@ void scatter_setX(scatter_t scatter, size_t index, int x);
  * @param print_type Type of message to print
  */
 void scatter_print(scatter_t scatter, char separator, print_type_t print_type);
+
+//========== Functions for point_t
+/**
+ * @brief Create a point
+ * 
+ * @param point Pointer to the created point
+ * @param x X value
+ * @param y Y value
+ * @return int - 0 if success, -1 otherwise
+ */
+int point_create(point_t** point, int x, double y);
+
+/**
+ * @brief Destroy a point
+ * 
+ * @param point Pointer to the point to destroy. Note : void* to be compatible with list_t
+ * @return int - 0
+ */
+int point_destroy(void* point);
 
 #endif // SCATTER_H

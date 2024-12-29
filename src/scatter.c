@@ -81,3 +81,20 @@ void scatter_print(scatter_t scatter, char separator, print_type_t print_type) {
             scatter_getX(scatter, i)
         );
 }
+
+//========== Functions for point_t
+int point_create(point_t** point, int x, double y) {
+    *point = malloc(sizeof(**point));
+    assert(*point, "Failed to allocate memory for the point", -1);
+
+    (*point)->x = x;
+    (*point)->y = y;
+
+    return 0;
+}
+
+int point_destroy(void* point) {
+    free(point);
+
+    return 0;
+}
