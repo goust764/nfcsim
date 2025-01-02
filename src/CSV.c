@@ -28,7 +28,7 @@ int writeCSV(scatter_t* scatters, size_t nbScatters, char* filename) {
     //========== Initializing variables
     //----- Opening the file
     file = fopen(filename, "w");
-    assert(file, "Cannot open file %s", -1);
+    assert(file, "Cannot open file %s", -1, filename);
 
     //----- Initializing the number of lines
     nbLines = 0;

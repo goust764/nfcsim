@@ -23,9 +23,9 @@
      * @param retCode Error code to return, if the condition is false
      * 
      */
-    #define assert(condition, errorMsg, retCode) \
+    #define assert(condition, errorMsg, retCode, ...) \
         if (!(condition)) { \
-            PRINT(ERR, "%s", errorMsg); \
+            PRINT(ERR, errorMsg, ##__VA_ARGS__); \
             PRINT(DBG, "Assertion failed at %s:%d: %s", __FILE__, __LINE__, #condition); \
             return retCode; \
         }
