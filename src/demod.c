@@ -94,11 +94,11 @@ int createLUT(char** LUT, size_t LUTSize) {
     }
 
     //========== Allocate memory
-    *LUT = calloc(sizeof(**LUT), LUTSize);
+    *LUT = calloc(LUTSize, sizeof(**LUT));
     assert(*LUT, "Failed to allocate memory for the LUT", -1);
 
     //========== Create the LUT
-    step = 2*M_PI/LUTSize;
+    step = 2*M_PI/(double)LUTSize;
     x = 0;
     for (size_t i = 0; i < LUTSize; i=i+1) {
         y = sin(x);
@@ -119,8 +119,8 @@ char LUTSin(char* LUT, size_t LUTSize, int time, int freq) {
     assert(LUTSize, "LUT size cannot be null", 0);
 
     //========== Compute the index
-    tmp = (long long int)freq*(long long int)time;
-    index = LUTSize*(int)(tmp/1e9) % LUTSize;
+    tmp = freq*time;
+    index = LUTSize*(size_t)tmp/(long long int)1e9 % LUTSize;
 
-    return LUT[tmp];
+    return LUT[index];
 }

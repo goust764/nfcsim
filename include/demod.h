@@ -46,6 +46,6 @@ int createLUT(char** LUT, size_t LUTSize);
  * @param phi Phase of the sin wave
  * @return char - Sin value
  */
-char LUTSin(char* LUT, size_t LUTSize, int time, int freq, int phi);
+char LUTSin(char* LUT, size_t LUTSize, int time, int freq);
 
 #endif // DEMOD_H
