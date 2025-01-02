@@ -52,6 +52,7 @@
  * Number of points during the simulation
  */
 #define NB_POINTS 16384
+// #define NB_POINTS 32768
 
 /**
  * Carrier frequency of the NFC communication
