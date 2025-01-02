@@ -20,13 +20,25 @@
                 "isDefault": true
             },
             "dependsOrder": "sequence",
-            // "dependsOn": ["create build folder", "create makefile", "make clean"]
-            "dependsOn": ["create build folder", "create makefile"]
+            "dependsOn": ["create build folder", "create makefile", "make clean", "create res folder"]
+            // "dependsOn": ["create build folder", "create makefile", "create res folder",]
         },
         {
             "type": "shell",
             "label": "create build folder",
             "command": "if not exist build mkdir build",
+            "options": {
+                "cwd": "${fileDirname}\\..",
+                "shell": {
+                    "executable": "cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            }
+        },
+        {
+            "type": "shell",
+            "label": "create res folder",
+            "command": "if not exist res mkdir res",
             "options": {
                 "cwd": "${fileDirname}\\..",
                 "shell": {
