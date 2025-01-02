@@ -479,26 +479,25 @@ int nfc_createSignal(
     /* Inch no need, already done in sub-functions */
 
     //========== Printing parameters
-    PRINT(NORM, "===== NFC SIGNAL GENERATION PARAMETERS =====");
-    PRINT(NORM, "Data:                   %s",       sigParam->data);
-    PRINT(NORM, "Size:                   %ld",      sigParam->dataSize);
-    PRINT(NORM, "Bit rate:               %d bit/s", sigParam->bitRate);
-    PRINT(NORM, "Encoding type:          %d",       sigParam->encodingType);
-    PRINT(NORM, "Sub-carrier modulation: %d",       sigParam->subModulation);
-    PRINT(NORM, "Sub-carrier frequency:  %d Hz",    sigParam->subCarrierFreq);
-    PRINT(NORM, "Carrier frequency:      %d Hz",    sigParam->carrierFreq);
-    PRINT(NORM, "Modulation index:       %d%%",     sigParam->modulationIndex);
-    PRINT(NORM, "Noise level:            %f",       sigParam->noiseLevel);
-    PRINT(NORM, "Simulation duration:    %d ms",    sigParam->simDuration);
-    PRINT(NORM, "Number of points:       %d",       sigParam->numberOfPoints);
-    PRINT(NORM, "============================================");
+    PRINT(INFO, "===== NFC SIGNAL GENERATION PARAMETERS =====");
+    PRINT(INFO, "Data:                   %s",       sigParam->data);
+    PRINT(INFO, "Size:                   %ld",      sigParam->dataSize);
+    PRINT(INFO, "Bit rate:               %d bit/s", sigParam->bitRate);
+    PRINT(INFO, "Encoding type:          %d",       sigParam->encodingType);
+    PRINT(INFO, "Sub-carrier modulation: %d",       sigParam->subModulation);
+    PRINT(INFO, "Sub-carrier frequency:  %d Hz",    sigParam->subCarrierFreq);
+    PRINT(INFO, "Carrier frequency:      %d Hz",    sigParam->carrierFreq);
+    PRINT(INFO, "Modulation index:       %d%%",     sigParam->modulationIndex);
+    PRINT(INFO, "Noise level:            %f",       sigParam->noiseLevel);
+    PRINT(INFO, "Simulation duration:    %d ms",    sigParam->simDuration);
+    PRINT(INFO, "Number of points:       %d",       sigParam->numberOfPoints);
+    PRINT(INFO, "============================================");
 
     // PRINT(DBG, "===== INPUT DATA =====");
     // for (int i = 0; (size_t)i < size; i=i+1)
     //     PRINT(DBG, "Data: [%d]\t0x%02X", i, data[i]);
 
     //========== Encode data
-    PRINT(INFO, "Encoding data");
     if (nfc_encodeData(
         sigParam,
         &encodedData, &encodedSize
@@ -512,7 +511,6 @@ int nfc_createSignal(
     //     PRINT(DBG, "Encoded data: [%d->%d]\t%d %d %d %d", i, i+3, encodedData[i], encodedData[i+1], encodedData[i+2], encodedData[i+3]);
 
     //========== Sub-carrier modulation
-    PRINT(INFO, "Modulating data with sub-carrier");
     if (nfc_modulateSubCarrier(
         encodedData, encodedSize,
         sigParam,
@@ -528,7 +526,6 @@ int nfc_createSignal(
     //     PRINT(DBG, "Sub-modulated data: [%d]\t%d", i, subModulatedData[i]);
 
     //========== Generate envelope
-    PRINT(INFO, "Generating envelope");
     if (nfc_createEnvelope(
         subModulatedData, subModulatedSize,
         sigParam,
@@ -544,7 +541,6 @@ int nfc_createSignal(
     // scatter_print(*envelope, '\t', DBG);
 
     //========== Modulate signal
-    PRINT(INFO, "Modulating signal");
     if (nfc_modulate(
         envelope, 
         sigParam,
@@ -570,7 +566,6 @@ int nfc_createSignal(
         return 0;
     }
 
-    PRINT(INFO, "Adding noise to the signal");
     if (nfc_addNoise(
         modulatedSignal,
         sigParam,
