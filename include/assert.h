@@ -35,7 +35,7 @@
      * @brief Do nothing, assertions are disabled
      * 
      */
-    #define assert(condition, errorMsg, retCode) \
+    #define assert(condition, errorMsg, retCode, ...) \
         (void)(condition);
 
 #endif
